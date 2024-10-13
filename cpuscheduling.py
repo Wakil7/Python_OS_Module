@@ -2,7 +2,10 @@
 # {ProcessName/ProcessId: [ArrivalTime, BurstTime, Priority]}
 # [ProcessName/ProcessId, ArrivalTime, BurstTime, Priority]
 
-def sortprocesses(processes, key=""):
+import copy
+
+def sortprocesses(processDict, key=""):
+    processes = copy.deepcopy(processDict)
     sortedList = []
     for process in processes:
         tmpProcess = [process]
@@ -52,7 +55,8 @@ def sortprocesses(processes, key=""):
 #                     time = processes[process][1]
 #     pass
 
-def avg(processes, key):
+def avg(processDict, key):
+    processes = copy.deepcopy(processDict)
     s = 0
     count = 0
     if key=="TT":
@@ -66,14 +70,15 @@ def avg(processes, key):
     return avg
 
 
-    
+
         
         
             
                 
     
 
-def fcfs(processes):
+def fcfs(processDict):
+    processes = copy.deepcopy(processDict)
     readyQueue = sortprocesses(processes, key="AT")
     outputDict = {}
     time = 0
@@ -86,7 +91,8 @@ def fcfs(processes):
         outputDict[process[0]] = [time, tt, wt]
     return outputDict
 
-def sjf(processes):
+def sjf(processDict):
+    processes = copy.deepcopy(processDict)
     n = len(processes)
     time = 0
     count = 0
@@ -111,7 +117,8 @@ def sjf(processes):
             count += 1
     return outputDict
 
-def prioritynp(processes):
+def prioritynp(processDict):
+    processes = copy.deepcopy(processDict)
     n = len(processes)
     time = 0
     count = 0
@@ -136,7 +143,8 @@ def prioritynp(processes):
             count += 1
     return outputDict
 
-def rr(processes, quantum=1):
+def rr(processDict, quantum=1):
+    processes = copy.deepcopy(processDict)
     n = len(processes)
     time = 0
     count = 0
@@ -156,13 +164,13 @@ def rr(processes, quantum=1):
                 sortedList.pop(0)
 
         if btList[0]>quantum:
-            print(readyQueue[0])
+            # print(readyQueue[0])
             btList[0]-= quantum
             time += quantum
             flag = True
             
         else:
-            print(readyQueue[0])
+            # print(readyQueue[0])
             time += btList[0]
             tt = time - readyQueue[0][1]
             wt = tt - readyQueue[0][2]
@@ -221,22 +229,58 @@ def rr(processes, quantum=1):
         #     readyQueue.append(currProcess)
     return outputDict
 
-        
-        
 
-        
+def srtf(processDict):
+    processes = copy.deepcopy(processDict)
+    n = len(processes)
+    time = 0
+    count = 0
+    readyDict = {}
+    outputDict = {}
+    arrivedList = []
+    readyQueue=[]
+    arrived=False
+    while count<n:
+        for process in processes:
+            if processes[process][0]==time:
+                if process not in arrivedList:
+                    readyDict[process] = processes[process]
+                    arrivedList.append(process)
+                    arrived = True
+
+        if arrived:
+            readyQueue = sortprocesses(readyDict, "BT")
+            arrived = False
+        if readyQueue == []:
+            time = time + 1
+        else:
+            if readyDict[readyQueue[0][0]][1] == 1:
+                time = time + 1
+                tt = time - readyQueue[0][1]
+                wt = tt - processDict[readyQueue[0][0]][1]
+                outputDict[readyQueue[0][0]] = [time, tt, wt]
+                del readyDict[readyQueue[0][0]]
+                readyQueue = sortprocesses(readyDict, "BT")
+                count += 1
+            else:
+                time = time + 1
+                readyDict[readyQueue[0][0]][1] -= 1
+    return outputDict
+
 
 
     
     
-
-fcfsout = fcfs({'A':[1, 3], 'B':[0, 5], 'C':[1, 2], 'D': [3, 1], 'E':[2, 4]})
-print(fcfsout, avg(fcfsout, "TT"), avg(fcfsout, "WT"))
-sjfout = sjf({'A':[1, 3], 'B':[0, 5], 'C':[1, 2], 'D': [3, 1], 'E':[2, 4]})
-print(sjfout, avg(sjfout, "TT"), avg(sjfout, "WT"))
-prout = prioritynp({'A':[1, 3, 1], 'B':[0, 5, 5], 'C':[1, 2, 4], 'D': [3, 1, 3], 'E':[2, 4, 2]})
-print(prout, avg(prout, "TT"), avg(sjfout, "WT"))
-# rrout = rr({'A':[0, 5, 1], 'B':[1, 6, 5], 'C':[2, 3, 4], 'D': [3, 1, 3], 'E':[4, 5, 2], 'F':[6, 4, 2]},4)
-# rrout = rr({'A':[0, 5, 1], 'B':[1, 4, 5], 'C':[2, 2, 4], 'D': [4, 1, 3]},2)
-rrout = rr({'A':[1, 3, 1], 'B':[0, 5, 5], 'C':[1, 2, 4], 'D': [3, 1, 3], 'E':[2, 4, 2]},2)
-print(rrout, avg(rrout, "TT"), avg(rrout, "WT"))
+if __name__=="__main__":
+    fcfsout = fcfs({'A':[1, 3], 'B':[0, 5], 'C':[1, 2], 'D': [3, 1], 'E':[2, 4]})
+    print(fcfsout, avg(fcfsout, "TT"), avg(fcfsout, "WT"))
+    sjfout = sjf({'A':[1, 3], 'B':[0, 5], 'C':[1, 2], 'D': [3, 1], 'E':[2, 4]})
+    print(sjfout, avg(sjfout, "TT"), avg(sjfout, "WT"))
+    prout = prioritynp({'A':[1, 3, 1], 'B':[0, 5, 5], 'C':[1, 2, 4], 'D': [3, 1, 3], 'E':[2, 4, 2]})
+    print(prout, avg(prout, "TT"), avg(sjfout, "WT"))
+    # rrout = rr({'A':[0, 5, 1], 'B':[1, 6, 5], 'C':[2, 3, 4], 'D': [3, 1, 3], 'E':[4, 5, 2], 'F':[6, 4, 2]},4)
+    # rrout = rr({'A':[0, 5, 1], 'B':[1, 4, 5], 'C':[2, 2, 4], 'D': [4, 1, 3]},2)
+    rrout = rr({'A':[1, 3, 1], 'B':[0, 5, 5], 'C':[1, 2, 4], 'D': [3, 1, 3], 'E':[2, 4, 2]},2)
+    print(rrout, avg(rrout, "TT"), avg(rrout, "WT"))
+    srtfout = srtf({'A':[1, 3], 'B':[0, 5], 'C':[1, 2], 'D': [3, 1], 'E':[2, 4]})
+    print(srtfout, avg(srtfout, "TT"), avg(srtfout, "WT"))
