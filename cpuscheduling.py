@@ -2,67 +2,34 @@
 # {ProcessName/ProcessId: [ArrivalTime, BurstTime, Priority]}
 # [ProcessName/ProcessId, ArrivalTime, BurstTime, Priority]
 
-import copy
+# Output Structure
+# {ProcessName/ProcessId: [CompletionTime, TurnaroundTime, WaitingTime]}
 
 def sortprocesses(processDict, key=""):
-    processes = copy.deepcopy(processDict)
-    sortedList = []
+    processes = {x[0]:x[1] for x in processDict.items()}
+    lst = []
     for process in processes:
         tmpProcess = [process]
-        for p in processes[process]:
-            tmpProcess.append(p)
-        sortedList.append(tmpProcess)
-    if key=="AT":
-        index = 1
-    elif key=="BT":
-        index = 2
-    elif key=="PR":
-        index = 3
+        tmpProcess.extend([p for p in processes[process]])
+        lst.append(tmpProcess)
+    d = {"AT": 1, "BT": 2, "PR": 3}
+    if key in d:
+        index = d[key]
     else:
         index = 0
-    n = len(sortedList)
-    for i in range(1, n):
-        swapped = False
-        for j in range(0, n-i):
-            if sortedList[j][index]>sortedList[j+1][index]:
-                tmp = sortedList[j]
-                sortedList[j] = sortedList[j+1]
-                sortedList[j+1] = tmp
-                swapped = True
-        if not(swapped):
-            break
-    return sortedList
+    lst.sort(key=lambda x: x[index])
+    return lst
 
 
 
-# def sortperfect(processes, key="AT"):
-#     sortedList = []
-#     time = 0
-#     lastAt = 0
-#     n = len(processes)
-#     count = 0
-#     for process in processes:
-#         if processes[process][0]>lastAt:
-#             lastAt = processes[process][0]
-#     while count<n:
-#         newList = []
-#         for process in processes:
-#             if processes[process][0]<=time:
-#                 tmpList = [process]
-#                 tmpList.extend(processes[process])
-#                 count = count + 1
-#                 if processes[process][1] > time:
-#                     time = processes[process][1]
-#     pass
+
 
 def avg(processDict, key):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     s = 0
     count = 0
-    if key=="TT":
-        index = 1
-    if key=="WT":
-        index = 2
+    d = {"TT": 1, "WT": 2}
+    index = d[key]
     for process in processes:
         s += processes[process][index]
         count += 1
@@ -78,7 +45,7 @@ def avg(processDict, key):
     
 
 def fcfs(processDict):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     readyQueue = sortprocesses(processes, key="AT")
     outputDict = {}
     time = 0
@@ -92,7 +59,7 @@ def fcfs(processDict):
     return outputDict
 
 def sjf(processDict):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     n = len(processes)
     time = 0
     count = 0
@@ -100,10 +67,11 @@ def sjf(processDict):
     outputDict = {}
     completedList = []
     while count<n:
-        for process in processes:
-            if processes[process][0]<=time:
-                if process not in completedList:
-                    readyDict[process] = processes[process]
+        readyDict.update(dict(filter(lambda p: p[0] not in completedList and p[1][0]<=time, processes.items())))
+        # for process in processes:
+        #     if processes[process][0]<=time:
+        #         if process not in completedList:
+        #             readyDict[process] = processes[process]
         readyQueue = sortprocesses(readyDict, "BT")
         if readyQueue == []:
             time = time + 1
@@ -118,7 +86,7 @@ def sjf(processDict):
     return outputDict
 
 def prioritynp(processDict):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     n = len(processes)
     time = 0
     count = 0
@@ -126,10 +94,11 @@ def prioritynp(processDict):
     outputDict = {}
     completedList = []
     while count<n:
-        for process in processes:
-            if processes[process][0]<=time:
-                if process not in completedList:
-                    readyDict[process] = processes[process]
+        readyDict.update(dict(filter(lambda p: p[0] not in completedList and p[1][0]<=time, processes.items())))
+        # for process in processes:
+        #     if processes[process][0]<=time:
+        #         if process not in completedList:
+        #             readyDict[process] = processes[process]
         readyQueue = sortprocesses(readyDict, "PR")
         if readyQueue == []:
             time = time + 1
@@ -144,7 +113,7 @@ def prioritynp(processDict):
     return outputDict
 
 def rr(processDict, quantum=1):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     n = len(processes)
     time = 0
     count = 0
@@ -192,46 +161,11 @@ def rr(processDict, quantum=1):
             tmp = readyQueue[0]
             readyQueue.pop(0)
             readyQueue.append(tmp)
-        # if sortedList!=[] and readyQueue==[0]*len(readyQueue):
-        #     while time<sortedList[0][1] and readyQueue==[0]*len(readyQueue):
-        #         time += 1
-        #     while sortedList!=[] and sortedList[0][1]==time:
-        #         readyQueue.append(sortedList[0])
-        #         btList.append(sortedList[0][2])
-        #         sortedList.pop(0)
-        # if readyQueue[index]!=0:
-        #     if btList[index]>quantum:
-        #         print(readyQueue[index])
-        #         btList[index]-= quantum
-        #         time += quantum
-                
-        #     else:
-        #         print(readyQueue[index])
-        #         time += btList[index]
-        #         tt = time - readyQueue[index][1]
-        #         wt = tt - readyQueue[index][2]
-        #         outputDict[readyQueue[index][0]] = [time, tt, wt]
-        #         readyQueue[index] = 0
-        #         count += 1
-
-        # while sortedList!=[] and sortedList[0][1]<=time:
-        #         readyQueue.append(sortedList[0])
-        #         btList.append(sortedList[0][2])
-        #         sortedList.pop(0)
-        # index = (index + 1) % len(readyQueue)
-
-        
-        # index = (index + 1) % len(readyQueue)
-
-        # if readyQueue != []:
-        #     currProcess = readyQueue[0]
-        #     readyQueue.pop(0)
-        #     readyQueue.append(currProcess)
     return outputDict
 
 
 def srtf(processDict):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     n = len(processes)
     time = 0
     count = 0
@@ -241,12 +175,17 @@ def srtf(processDict):
     readyQueue=[]
     arrived=False
     while count<n:
-        for process in processes:
-            if processes[process][0]==time:
-                if process not in arrivedList:
-                    readyDict[process] = processes[process]
-                    arrivedList.append(process)
-                    arrived = True
+        tempDict = dict(filter(lambda p: p[0] not in arrivedList and p[1][0]==time, processes.items()))
+        arrived = (tempDict!={})
+        arrivedList.extend([p for p in tempDict.keys()])
+        readyDict.update(tempDict)
+
+        # for process in processes:
+        #     if processes[process][0]==time:
+        #         if process not in arrivedList:
+        #             readyDict[process] = processes[process]
+        #             arrivedList.append(process)
+        #             arrived = True
 
         if arrived:
             readyQueue = sortprocesses(readyDict, "BT")
@@ -268,7 +207,7 @@ def srtf(processDict):
     return outputDict
 
 def priorityp(processDict):
-    processes = copy.deepcopy(processDict)
+    processes = {x[0]:x[1] for x in processDict.items()}
     n = len(processes)
     time = 0
     count = 0
@@ -278,12 +217,16 @@ def priorityp(processDict):
     readyQueue=[]
     arrived=False
     while count<n:
-        for process in processes:
-            if processes[process][0]==time:
-                if process not in arrivedList:
-                    readyDict[process] = processes[process]
-                    arrivedList.append(process)
-                    arrived = True
+        tempDict = dict(filter(lambda p: p[0] not in arrivedList and p[1][0]==time, processes.items()))
+        arrived = (tempDict!={})
+        arrivedList.extend([p for p in tempDict.keys()])
+        readyDict.update(tempDict)
+        # for process in processes:
+        #     if processes[process][0]==time:
+        #         if process not in arrivedList:
+        #             readyDict[process] = processes[process]
+        #             arrivedList.append(process)
+        #             arrived = True
 
         if arrived:
             readyQueue = sortprocesses(readyDict, "PR")
