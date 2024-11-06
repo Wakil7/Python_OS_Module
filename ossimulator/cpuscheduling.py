@@ -26,14 +26,13 @@ def sortprocesses(processDict, key=""):
 
 def avg(processDict, key):
     processes = {x[0]:x[1] for x in processDict.items()}
-    s = 0
-    count = 0
     d = {"TT": 1, "WT": 2}
     index = d[key]
-    for process in processes:
-        s += processes[process][index]
-        count += 1
-    avg = s/count
+
+    s = sum(list(map(lambda x: x[index], processes.values())))
+    # for process in processes:
+    #     s += processes[process][index]
+    avg = s/len(processes)
     return avg
 
 
