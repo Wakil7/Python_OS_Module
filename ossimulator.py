@@ -1,3 +1,4 @@
+import copy
 class CpuScheduler:
     def __init__(self):
         self.processDict = {}
@@ -47,7 +48,7 @@ class CpuScheduler:
         self.processDict.clear()
     
     def sorted(self, pDict, key=""):
-        processes = {x[0]:x[1] for x in pDict.items()}
+        processes = copy.deepcopy(pDict)
         lst = []
         for process in processes:
             tmpProcess = [process]
@@ -62,7 +63,7 @@ class CpuScheduler:
         return lst
 
     def avg(self, pDict, key):
-        processes = {x[0]:x[1] for x in pDict.items()}
+        processes = copy.deepcopy(pDict)
         d = {"TT": 1, "WT": 2}
         if key not in d:
             return -1
@@ -75,7 +76,7 @@ class CpuScheduler:
 
 
     def fcfs(self):
-        processes = {x[0]:x[1] for x in self.processDict.items()}
+        processes = copy.deepcopy(self.processDict)
         readyQueue = self.sorted(processes, key="AT")
         outputDict = {}
         time = 0
@@ -89,7 +90,7 @@ class CpuScheduler:
         return outputDict
 
     def sjf(self):
-        processes = {x[0]:x[1] for x in self.processDict.items()}
+        processes = copy.deepcopy(self.processDict)
         n = len(processes)
         time = 0
         count = 0
@@ -113,7 +114,7 @@ class CpuScheduler:
         return outputDict
 
     def prioritynp(self):
-        processes = {x[0]:x[1] for x in self.processDict.items()}
+        processes = copy.deepcopy(self.processDict)
         n = len(processes)
         time = 0
         count = 0
@@ -137,7 +138,7 @@ class CpuScheduler:
         return outputDict
 
     def rr(self, quantum=1):
-        processes = {x[0]:x[1] for x in self.processDict.items()}
+        processes = copy.deepcopy(self.processDict)
         n = len(processes)
         time = 0
         count = 0
@@ -186,7 +187,7 @@ class CpuScheduler:
 
 
     def srtf(self):
-        processes = {x[0]:x[1] for x in self.processDict.items()}
+        processes = copy.deepcopy(self.processDict)
         n = len(processes)
         time = 0
         count = 0
@@ -222,7 +223,7 @@ class CpuScheduler:
         return outputDict
 
     def priorityp(self):
-        processes = {x[0]:x[1] for x in self.processDict.items()}
+        processes = copy.deepcopy(self.processDict)
         n = len(processes)
         time = 0
         count = 0
