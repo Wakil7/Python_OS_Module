@@ -498,8 +498,16 @@ class PageReplacement:
             if req in self.frames:
                 hit+=1
             else:
-                self.frames[index] = req
-                index = (index + 1) % self.size
+                flag = True
+                for i in range(self.size):
+                    if self.frames[i]==None:
+                        self.frames[i] = req
+                        index = (i + 1) % self.size
+                        flag = False
+                        break
+                if flag:
+                    self.frames[index] = req
+                    index = (index + 1) % self.size
         return hit
     
     def lru(self, requests):
@@ -531,7 +539,7 @@ class PageReplacement:
                     self.frames[x] = req
                     usedDict[req] = 1
         return hit
-
+    
     def mru(self, requests):
         usedDict = {x:1 for x in self.frames if x is not None}
         hit = 0
@@ -627,5 +635,57 @@ class PageReplacement:
         return hit
     
     def clock(self, requests):
-        pass
+        useBitDict = {x:1 for x in self.frames if x is not None}
+        hit = 0
+        index = 0
+        for req in requests:
+            if req in self.frames:
+                hit += 1
+                useBitDict[req] = 1
+            else:
+                flag = True
+                for i in range(self.size):
+                    if self.frames[i]==None:
+                        self.frames[i]=req
+                        useBitDict[req] = 1
+                        index = (i + 1) % self.size
+                        flag = False
+                        break
+                if flag:
+                    while (useBitDict[self.frames[index]]!=0):
+                        useBitDict[self.frames[index]] = 0
+                        index = (index + 1) % self.size
 
+                    del useBitDict[self.frames[index]]
+                    self.frames[index] = req
+                    useBitDict[req] = 1
+                    index = (index + 1) % self.size
+        return hit
+    
+    def optimal(self, requests):
+        hit = 0
+        for index, req in enumerate(requests):
+            if req in self.frames:
+                hit += 1
+            else:
+                flag = True
+                for i in range(self.size):
+                    if self.frames[i]==None:
+                        self.frames[i] = req
+                        flag = False
+                        break
+                if flag:
+                    s = set()
+                    for r in requests[index+1:]:
+                        if r in self.frames:
+                            s.add(r)
+                            if len(s)==self.size:
+                                x = self.frames.index(r)
+                                self.frames[x] = req
+                                break
+                    if len(s)!=self.size:
+                        for x, r in enumerate(self.frames):
+                            if r not in s:
+                                self.frames[x] = req
+                                break
+        return hit
