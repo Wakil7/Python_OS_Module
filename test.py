@@ -1,6 +1,9 @@
-import ossimulator
+from ossimulator import cpuscheduling as c
+from ossimulator import diskscheduling as d
+from ossimulator import memoryallocation as m
+from ossimulator import pagereplacement as p
 
-cs = ossimulator.CpuScheduler()
+cs = c.CpuScheduler()
 processes = [
     [1000, 1, 3, 1],
     [1001, 0, 5, 5],
@@ -47,95 +50,95 @@ print("Average Turnaround Time: ", cs.avg(prout, "TT"))
 print("Average Waiting Time: ", cs.avg(prout, "WT"))
 print()
 
-ds = ossimulator.DiskScheduler(200)
+# ds = d.DiskScheduler(200)
 
-requestLst = [50, 91, 150, 92, 130, 18, 140, 70, 60]
-ds.addRequests(requestLst)
-head = 53
+# requestLst = [50, 91, 150, 92, 130, 18, 140, 70, 60]
+# ds.addRequests(requestLst)
+# head = 53
 
-lst, mov = ds.fcfs(head)
-print("FCFS:", lst)
-print("Total head movement:", mov)
-print()
+# lst, mov = ds.fcfs(head)
+# print("FCFS:", lst)
+# print("Total head movement:", mov)
+# print()
 
-lst, mov = ds.sstf(head)
-print("SSTF:", lst)
-print("Total head movement:", mov)
-print()
+# lst, mov = ds.sstf(head)
+# print("SSTF:", lst)
+# print("Total head movement:", mov)
+# print()
 
-lst, mov = ds.scan(head)
-print("SCAN:", lst)
-print("Total head movement:", mov)
-print()
+# lst, mov = ds.scan(head)
+# print("SCAN:", lst)
+# print("Total head movement:", mov)
+# print()
 
-lst, mov = ds.cscan(head)
-print("C-SCAN:", lst)
-print("Total head movement:", mov)
-print()
+# lst, mov = ds.cscan(head)
+# print("C-SCAN:", lst)
+# print("Total head movement:", mov)
+# print()
 
-lst, mov = ds.look(head)
-print("LOOK:", lst)
-print("Total head movement:", mov)
-print()
+# lst, mov = ds.look(head)
+# print("LOOK:", lst)
+# print("Total head movement:", mov)
+# print()
 
-lst, mov = ds.clook(head)
-print("C-LOOK:", lst)
-print("Total head movement:", mov)
-print()
+# lst, mov = ds.clook(head)
+# print("C-LOOK:", lst)
+# print("Total head movement:", mov)
+# print()
 
-pr = ossimulator.PageReplacement(4)
-requestLst = [1,2,3,4,5,3,2,6,1,3,2,4,5,6,5,4,2,3,2,1,2,3,2,5,6]
-print("Random Hit =", pr.rand(requestLst))
-pr.clearFrames()
-print("FIFO Hit =", pr.fifo(requestLst))
-pr.clearFrames()
-print("LRU Hit =", pr.lru(requestLst))
-pr.clearFrames()
-print("MRU Hit =", pr.mru(requestLst))
-pr.clearFrames()
-print("LFU Hit =", pr.lfu(requestLst))
-pr.clearFrames()
-print("MFU Hit =", pr.mfu(requestLst))
-pr.clearFrames()
-print("Clock Hit =", pr.clock(requestLst))
-pr.clearFrames()
-print("Optimal Hit =", pr.optimal(requestLst))
+# pr = p.PageReplacer(4)
+# requestLst = [1,2,3,4,5,3,2,6,1,3,2,4,5,6,5,4,2,3,2,1,2,3,2,5,6]
+# print("Random Hit =", pr.rand(requestLst))
+# pr.clearFrames()
+# print("FIFO Hit =", pr.fifo(requestLst))
+# pr.clearFrames()
+# print("LRU Hit =", pr.lru(requestLst))
+# pr.clearFrames()
+# print("MRU Hit =", pr.mru(requestLst))
+# pr.clearFrames()
+# print("LFU Hit =", pr.lfu(requestLst))
+# pr.clearFrames()
+# print("MFU Hit =", pr.mfu(requestLst))
+# pr.clearFrames()
+# print("Clock Hit =", pr.clock(requestLst))
+# pr.clearFrames()
+# print("Optimal Hit =", pr.optimal(requestLst))
 
-memoryStatus = [100, 320, 500, 200, 300, 600]
-processDict = {
-    1000: 212,
-    1001: 98,
-    1002: 417,
-    1003: 112,
-    1004: 426
-}
-ma = ossimulator.MemoryAllocation(memoryStatus)
-allocated = ma.firstFit(processDict)
-print("Process Status:", allocated)
-print("Available Memory:", ma.getMemoryStatus())
-print("Total Available Memory:", ma.totalFreeMemory())
-print()
+# memoryStatus = [100, 320, 500, 200, 300, 600]
+# processDict = {
+#     1000: 212,
+#     1001: 98,
+#     1002: 417,
+#     1003: 112,
+#     1004: 426
+# }
+# ma = m.MemoryAllocator(memoryStatus)
+# allocated = ma.firstFit(processDict)
+# print("Process Status:", allocated)
+# print("Available Memory:", ma.getMemoryStatus())
+# print("Total Available Memory:", ma.totalFreeMemory())
+# print()
 
-ma.updateBlocks(memoryStatus)
+# ma.updateBlocks(memoryStatus)
 
-allocated = ma.bestFit(processDict)
-print("Process Status:", allocated)
-print("Available Memory:", ma.getMemoryStatus())
-print("Total Available Memory:", ma.totalFreeMemory())
-print()
+# allocated = ma.bestFit(processDict)
+# print("Process Status:", allocated)
+# print("Available Memory:", ma.getMemoryStatus())
+# print("Total Available Memory:", ma.totalFreeMemory())
+# print()
 
-ma.updateBlocks(memoryStatus)
+# ma.updateBlocks(memoryStatus)
 
-allocated = ma.worstFit(processDict)
-print("Process Status:", allocated)
-print("Available Memory:", ma.getMemoryStatus())
-print("Total Available Memory:", ma.totalFreeMemory())
-print()
+# allocated = ma.worstFit(processDict)
+# print("Process Status:", allocated)
+# print("Available Memory:", ma.getMemoryStatus())
+# print("Total Available Memory:", ma.totalFreeMemory())
+# print()
 
-ma.updateBlocks(memoryStatus)
+# ma.updateBlocks(memoryStatus)
 
-allocated = ma.nextFit(processDict)
-print("Process Status:", allocated)
-print("Available Memory:", ma.getMemoryStatus())
-print("Total Available Memory:", ma.totalFreeMemory())
-print()
+# allocated = ma.nextFit(processDict)
+# print("Process Status:", allocated)
+# print("Available Memory:", ma.getMemoryStatus())
+# print("Total Available Memory:", ma.totalFreeMemory())
+# print()
