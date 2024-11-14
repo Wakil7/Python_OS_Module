@@ -1,3 +1,6 @@
+# {pid: [ArrivalTime, BurstTime, Priority]}
+# {pid: [CompletionTime, TurnaroundTime, WaitingTime]}
+
 import copy
 
 class CpuScheduler:
