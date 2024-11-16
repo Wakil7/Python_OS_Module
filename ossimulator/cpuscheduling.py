@@ -191,14 +191,18 @@ class CpuScheduler:
 
 
     def srtf(self, tasks):
+        Output = namedtuple("Output", ["name", "chartdata", "result"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
+        idle=0
         readyDict = {}
-        outputDict = {}
+        resultDict = {}
         arrivedList = []
         readyQueue=[]
+        chartLst = []
+        currProcess = None
         arrived=False
         while count<n:
             tempDict = dict(filter(lambda p: p[0] not in arrivedList and p[1][0]==time, processes.items()))
@@ -210,32 +214,49 @@ class CpuScheduler:
             if arrived:
                 readyQueue = self.sorted(readyDict, "BT")
                 arrived = False
+                if currProcess==None:
+                    currProcess=readyQueue[0][0]
             if readyQueue == []:
                 time = time + 1
+                idle+=1
             else:
+                if idle!=0:
+                    if chartLst!=[]:
+                        idle+=chartLst[-1][1]
+                    chartLst.append(("Idle", idle))
+                    idle=0
                 if readyDict[readyQueue[0][0]][1] == 1:
                     time = time + 1
                     tt = time - readyQueue[0][1]
                     wt = tt - tasks.processDict[readyQueue[0][0]][1]
-                    outputDict[readyQueue[0][0]] = [time, tt, wt]
+                    resultDict[readyQueue[0][0]] = [time, tt, wt]
+                    chartLst.append((readyQueue[0][0], time))
                     del readyDict[readyQueue[0][0]]
                     readyQueue = self.sorted(readyDict, "BT")
                     count += 1
                 else:
+                    if currProcess in readyDict.keys() and currProcess!=readyQueue[0][0]:
+                        chartLst.append((currProcess, time))
+                        currProcess = readyQueue[0][0]
                     time = time + 1
                     readyDict[readyQueue[0][0]][1] -= 1
-        return outputDict
+        output = Output("SRTF", chartLst, resultDict)   
+        return output
 
     def priorityp(self, tasks):
+        Output = namedtuple("Output", ["name", "chartdata", "result"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
+        idle = 0
         readyDict = {}
-        outputDict = {}
+        resultDict = {}
         arrivedList = []
         readyQueue=[]
+        chartLst = []
         arrived=False
+        currProcess=None
         while count<n:
             tempDict = dict(filter(lambda p: p[0] not in arrivedList and p[1][0]==time, processes.items()))
             arrived = (tempDict!={})
@@ -245,18 +266,32 @@ class CpuScheduler:
             if arrived:
                 readyQueue = self.sorted(readyDict, "PR")
                 arrived = False
+                if currProcess==None:
+                    currProcess=readyQueue[0][0]
+                arrived = False
             if readyQueue == []:
                 time = time + 1
+                idle+=1
             else:
+                if idle!=0:
+                    if chartLst!=[]:
+                        idle+=chartLst[-1][1]
+                    chartLst.append(("Idle", idle))
+                    idle=0
                 if readyDict[readyQueue[0][0]][1] == 1:
                     time = time + 1
                     tt = time - readyQueue[0][1]
                     wt = tt - tasks.processDict[readyQueue[0][0]][1]
-                    outputDict[readyQueue[0][0]] = [time, tt, wt]
+                    resultDict[readyQueue[0][0]] = [time, tt, wt]
+                    chartLst.append((readyQueue[0][0], time))
                     del readyDict[readyQueue[0][0]]
                     readyQueue = self.sorted(readyDict, "PR")
                     count += 1
                 else:
+                    if currProcess in readyDict.keys() and currProcess!=readyQueue[0][0]:
+                        chartLst.append((currProcess, time))
+                        currProcess = readyQueue[0][0]
                     time = time + 1
                     readyDict[readyQueue[0][0]][1] -= 1
-        return outputDict
+        output = Output("Preemptive Priority", chartLst, resultDict)   
+        return output

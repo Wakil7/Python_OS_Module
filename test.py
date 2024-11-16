@@ -8,15 +8,15 @@ from ossimulator import processes as pr
 cs = c.CpuScheduler()
 processes = [
     ["P0", 1, 3, 1],
-    ["P1", 0, 5, 5],
+    ["P1", 10, 5, 5],
     ["P2", 17, 2, 4],
     ["P3", 3, 1, 3],
     ["P4", 2, 4, 2],
-    # [1005, 1, 3, 1],
-    # [1006, 0, 5, 5],
-    # [1007, 1, 2, 4],
-    # [1008, 3, 1, 3],
-    # [1009, 2, 4, 2],
+    # ["P5", 1, 3, 1],
+    # ["P6", 0, 5, 5],
+    # ["P7", 1, 2, 4],
+    # ["P8", 3, 1, 3],
+    # ["P9", 2, 4, 2],
     # [10010, 1, 3, 1],
     # [10011, 0, 5, 5],
     # [10012, 1, 2, 4],
@@ -58,23 +58,25 @@ print("Average Turnaround Time: ", cs.avg(rrout, "TT"))
 print("Average Waiting Time: ", cs.avg(rrout, "WT"))
 print()
 
-# srtfout = cs.srtf()
-# print("SRTF:", srtfout)
-# print("Average Turnaround Time: ", cs.avg(srtfout, "TT"))
-# print("Average Waiting Time: ", cs.avg(srtfout, "WT"))
-# print()
+srtfout = cs.srtf(pro)
+print("SRTF:", srtfout.result)
+print("Average Turnaround Time: ", cs.avg(srtfout, "TT"))
+print("Average Waiting Time: ", cs.avg(srtfout, "WT"))
+print()
 
-# prout = cs.priorityp()
-# print("P Priority:", prout)
-# print("Average Turnaround Time: ", cs.avg(prout, "TT"))
-# print("Average Waiting Time: ", cs.avg(prout, "WT"))
-# print()
+prout = cs.priorityp(pro)
+print("P Priority:", prout.result)
+print("Average Turnaround Time: ", cs.avg(prout, "TT"))
+print("Average Waiting Time: ", cs.avg(prout, "WT"))
+print()
 
 visual = v.Visualize()
 visual.ganttchart(fcfsout)
 visual.ganttchart(sjfout)
 visual.ganttchart(nprout)
 visual.ganttchart(rrout)
+visual.ganttchart(srtfout)
+visual.ganttchart(prout)
 
 # ds = d.DiskScheduler(200)
 
