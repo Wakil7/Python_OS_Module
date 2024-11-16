@@ -2,53 +2,79 @@ from ossimulator import cpuscheduling as c
 from ossimulator import diskscheduling as d
 from ossimulator import memoryallocation as m
 from ossimulator import pagereplacement as p
+from ossimulator import visualization as v
+from ossimulator import processes as pr
 
 cs = c.CpuScheduler()
 processes = [
-    [1000, 1, 3, 1],
-    [1001, 0, 5, 5],
-    [1002, 1, 2, 4],
-    [1003, 3, 1, 3],
-    [1004, 2, 4, 2]
+    ["P0", 1, 3, 1],
+    ["P1", 0, 5, 5],
+    ["P2", 17, 2, 4],
+    ["P3", 3, 1, 3],
+    ["P4", 2, 4, 2],
+    # [1005, 1, 3, 1],
+    # [1006, 0, 5, 5],
+    # [1007, 1, 2, 4],
+    # [1008, 3, 1, 3],
+    # [1009, 2, 4, 2],
+    # [10010, 1, 3, 1],
+    # [10011, 0, 5, 5],
+    # [10012, 1, 2, 4],
+    # [10013, 3, 1, 3],
+    # [10014, 2, 4, 2],
+    # [10015, 1, 3, 1],
+    # [10016, 0, 5, 5],
+    # [10017, 1, 2, 4],
+    # [10018, 3, 1, 3],
+    # [10019, 2, 4, 2]
 ]
 
-cs.addProcesses(processes)
+# cs.addProcesses(processes)
+pro = pr.Process()
+pro.addProcesses(processes)
 
-fcfsout = cs.fcfs()
-print("FCFS:", fcfsout)
+
+fcfsout = cs.fcfs(pro)
+print("FCFS:", fcfsout.result)
 print("Average Turnaround Time: ", cs.avg(fcfsout, "TT"))
 print("Average Waiting Time: ", cs.avg(fcfsout, "WT"))
 print()
 
-sjfout = cs.sjf()
-print("SJF:", sjfout)
+sjfout = cs.sjf(pro)
+print("SJF:", sjfout.result)
 print("Average Turnaround Time: ", cs.avg(sjfout, "TT"))
 print("Average Waiting Time: ", cs.avg(sjfout, "WT"))
 print()
 
-nprout = cs.prioritynp()
-print("NP Priority:", nprout)
+nprout = cs.prioritynp(pro)
+print("NP Priority:", nprout.result)
 print("Average Turnaround Time: ", cs.avg(nprout, "TT"))
 print("Average Waiting Time: ", cs.avg(nprout, "WT"))
 print()
 
-rrout = cs.rr(2)
-print("RR:", rrout)
+rrout = cs.rr(pro, 2)
+print("RR:", rrout.result)
 print("Average Turnaround Time: ", cs.avg(rrout, "TT"))
 print("Average Waiting Time: ", cs.avg(rrout, "WT"))
 print()
 
-srtfout = cs.srtf()
-print("SRTF:", srtfout)
-print("Average Turnaround Time: ", cs.avg(srtfout, "TT"))
-print("Average Waiting Time: ", cs.avg(srtfout, "WT"))
-print()
+# srtfout = cs.srtf()
+# print("SRTF:", srtfout)
+# print("Average Turnaround Time: ", cs.avg(srtfout, "TT"))
+# print("Average Waiting Time: ", cs.avg(srtfout, "WT"))
+# print()
 
-prout = cs.priorityp()
-print("P Priority:", prout)
-print("Average Turnaround Time: ", cs.avg(prout, "TT"))
-print("Average Waiting Time: ", cs.avg(prout, "WT"))
-print()
+# prout = cs.priorityp()
+# print("P Priority:", prout)
+# print("Average Turnaround Time: ", cs.avg(prout, "TT"))
+# print("Average Waiting Time: ", cs.avg(prout, "WT"))
+# print()
+
+visual = v.Visualize()
+visual.ganttchart(fcfsout)
+visual.ganttchart(sjfout)
+visual.ganttchart(nprout)
+visual.ganttchart(rrout)
 
 # ds = d.DiskScheduler(200)
 
@@ -113,6 +139,7 @@ print()
 #     1004: 426
 # }
 # ma = m.MemoryAllocator(memoryStatus)
+
 # allocated = ma.firstFit(processDict)
 # print("Process Status:", allocated)
 # print("Available Memory:", ma.getMemoryStatus())
@@ -142,3 +169,4 @@ print()
 # print("Available Memory:", ma.getMemoryStatus())
 # print("Total Available Memory:", ma.totalFreeMemory())
 # print()
+

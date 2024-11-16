@@ -2,54 +2,9 @@
 # {pid: [CompletionTime, TurnaroundTime, WaitingTime]}
 
 import copy
+from collections import namedtuple
 
 class CpuScheduler:
-    def __init__(self):
-        self.processDict = {}
-
-    def addProcess(self, pid, at, bt, pr=-1):
-        if pid in self.processDict.keys():
-            return -1
-        self.processDict.update({pid: [at, bt, pr]})
-        return 0
-    
-    def addProcesses(self, processList):
-        for p in processList:
-            try:
-                if p[0] in self.processDict.keys():
-                    return -1
-                if type(p[0])!=int or type(p[1])!=int or type(p[2])!=int or type(p[3])!=int:
-                    return -1
-            except:
-                return -1
-        
-        for p in processList:
-            self.processDict.update({p[0]: [p[1], p[2], p[3]]})
-        return 0
-
-    def updateProcess(self, pid, value, key):
-        d = {"AT": 0, "BT": 1, "PR": 2}
-        if pid not in self.processDict.keys():
-            return -1
-        
-        if key not in d.keys():
-            return -1
-        
-        if type(value)!=int:
-            return -1
-        
-        self.processDict[pid][key] = value
-        return 0
-    
-    def removeProcess(self, pid):
-        if pid not in self.processDict.keys():
-            return -1
-        
-        del self.processDict[pid]
-        return 0
-    
-    def clearList(self):
-        self.processDict.clear()
     
     def sorted(self, pDict, key=""):
         processes = copy.deepcopy(pDict)
@@ -66,8 +21,8 @@ class CpuScheduler:
         lst.sort(key=lambda x: x[index])
         return lst
 
-    def avg(self, pDict, key):
-        processes = copy.deepcopy(pDict)
+    def avg(self, data, key):
+        processes = copy.deepcopy(data.result)
         d = {"TT": 1, "WT": 2}
         if key not in d:
             return -1
@@ -79,83 +34,125 @@ class CpuScheduler:
         return avg
 
 
-    def fcfs(self):
-        processes = copy.deepcopy(self.processDict)
+    def fcfs(self, tasks):
+        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        processes = copy.deepcopy(tasks.processDict)
         readyQueue = self.sorted(processes, key="AT")
-        outputDict = {}
+        resultDict = {}
+        chartLst = []
         time = 0
+        idle = 0
         for process in readyQueue:
             while time<process[1]:
                 time += 1
+                idle+=1
+            if idle!=0:
+                if chartLst!=[]:
+                    idle += chartLst[-1][1]
+                chartLst.append(("Idle", idle))
+                idle = 0
             time += process[2]
             tt = time-process[1]
             wt = tt-process[2]
-            outputDict[process[0]] = [time, tt, wt]
-        return outputDict
+            resultDict[process[0]] = [time, tt, wt]
+            chartLst.append((process[0], time))
+        output = Output("FCFS", chartLst, resultDict)
+        return output
 
-    def sjf(self):
-        processes = copy.deepcopy(self.processDict)
+    def sjf(self, tasks):
+        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
+        idle=0
         readyDict = {}
-        outputDict = {}
+        resultDict = {}
         completedList = []
+        chartLst = []
         while count<n:
             readyDict.update(dict(filter(lambda p: p[0] not in completedList and p[1][0]<=time, processes.items())))
     
             readyQueue = self.sorted(readyDict, "BT")
             if readyQueue == []:
                 time = time + 1
+                idle += 1
             else:
+                if idle!=0:
+                    if chartLst!=[]:
+                        idle += chartLst[-1][1]
+                    chartLst.append(("Idle", idle))
+                    idle = 0
                 time = time + readyQueue[0][2]
                 tt = time-readyQueue[0][1]
                 wt = tt-readyQueue[0][2]
                 completedList.append(readyQueue[0][0])
-                outputDict[readyQueue[0][0]] = [time, tt, wt]
+                resultDict[readyQueue[0][0]] = [time, tt, wt]
+                chartLst.append((readyQueue[0][0], time))
                 del readyDict[readyQueue[0][0]]
                 count += 1
-        return outputDict
+        output = Output("SJF", chartLst, resultDict)
+        return output
 
-    def prioritynp(self):
-        processes = copy.deepcopy(self.processDict)
+    def prioritynp(self, tasks):
+        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
+        idle = 0
         readyDict = {}
-        outputDict = {}
+        resultDict = {}
         completedList = []
+        chartLst = []
         while count<n:
             readyDict.update(dict(filter(lambda p: p[0] not in completedList and p[1][0]<=time, processes.items())))
     
             readyQueue = self.sorted(readyDict, "PR")
             if readyQueue == []:
                 time = time + 1
+                idle+=1
             else:
+                if idle!=0:
+                    if chartLst!=[]:
+                        idle += chartLst[-1][1]
+                    chartLst.append(("Idle", idle))
+                    idle = 0
                 time = time + readyQueue[0][2]
                 tt = time-readyQueue[0][1]
                 wt = tt-readyQueue[0][2]
                 completedList.append(readyQueue[0][0])
-                outputDict[readyQueue[0][0]] = [time, tt, wt]
+                resultDict[readyQueue[0][0]] = [time, tt, wt]
+                chartLst.append((readyQueue[0][0], time))
                 del readyDict[readyQueue[0][0]]
                 count += 1
-        return outputDict
+        output = Output("Non-Preemptive Priority", chartLst, resultDict)
+        return output
 
-    def rr(self, quantum=1):
-        processes = copy.deepcopy(self.processDict)
+    def rr(self, tasks, quantum=1):
+        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
-        outputDict = {}
+        idle=0
+        resultDict = {}
         sortedList = self.sorted(processes, key="AT")
         readyQueue = []
+        chartLst = []
         btList = []
         flag = True
         while count<n:
             if sortedList!=[] and readyQueue==[]:
                 while time<sortedList[0][1] and readyQueue==[]:
                     time += 1
+                    idle+=1
                 while sortedList!=[] and sortedList[0][1]==time:
+                    if idle!=0:
+                        if chartLst!=[]:
+                            idle+=chartLst[-1][1]
+                        chartLst.append(("Idle", idle))
+                        idle=0
                     readyQueue.append(sortedList[0])
                     btList.append(sortedList[0][2])
                     sortedList.pop(0)
@@ -163,13 +160,15 @@ class CpuScheduler:
             if btList[0]>quantum:
                 btList[0]-= quantum
                 time += quantum
+                chartLst.append((readyQueue[0][0], time))
                 flag = True
                 
             else:
                 time += btList[0]
                 tt = time - readyQueue[0][1]
                 wt = tt - readyQueue[0][2]
-                outputDict[readyQueue[0][0]] = [time, tt, wt]
+                resultDict[readyQueue[0][0]] = [time, tt, wt]
+                chartLst.append((readyQueue[0][0], time))
                 readyQueue.pop(0)
                 btList.pop(0)
                 flag = False
@@ -187,11 +186,12 @@ class CpuScheduler:
                 tmp = readyQueue[0]
                 readyQueue.pop(0)
                 readyQueue.append(tmp)
-        return outputDict
+        output = Output("Round Robin", chartLst, resultDict)
+        return output
 
 
-    def srtf(self):
-        processes = copy.deepcopy(self.processDict)
+    def srtf(self, tasks):
+        processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
@@ -216,7 +216,7 @@ class CpuScheduler:
                 if readyDict[readyQueue[0][0]][1] == 1:
                     time = time + 1
                     tt = time - readyQueue[0][1]
-                    wt = tt - self.processDict[readyQueue[0][0]][1]
+                    wt = tt - tasks.processDict[readyQueue[0][0]][1]
                     outputDict[readyQueue[0][0]] = [time, tt, wt]
                     del readyDict[readyQueue[0][0]]
                     readyQueue = self.sorted(readyDict, "BT")
@@ -226,8 +226,8 @@ class CpuScheduler:
                     readyDict[readyQueue[0][0]][1] -= 1
         return outputDict
 
-    def priorityp(self):
-        processes = copy.deepcopy(self.processDict)
+    def priorityp(self, tasks):
+        processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
         count = 0
@@ -251,7 +251,7 @@ class CpuScheduler:
                 if readyDict[readyQueue[0][0]][1] == 1:
                     time = time + 1
                     tt = time - readyQueue[0][1]
-                    wt = tt - self.processDict[readyQueue[0][0]][1]
+                    wt = tt - tasks.processDict[readyQueue[0][0]][1]
                     outputDict[readyQueue[0][0]] = [time, tt, wt]
                     del readyDict[readyQueue[0][0]]
                     readyQueue = self.sorted(readyDict, "PR")
