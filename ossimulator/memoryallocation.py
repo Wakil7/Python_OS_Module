@@ -1,4 +1,5 @@
 import copy
+from collections import namedtuple
 
 class MemoryAllocator:
     def __init__(self, freeLst):
@@ -15,78 +16,123 @@ class MemoryAllocator:
         return sum(self.memory)
 
     def firstFit(self, processDict):
+        Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
+        newMemory = copy.deepcopy(self.memory)
         allotedDict = {}
         for pid in processes.keys():
             flag = True
-            for i, block in enumerate(self.memory):
-                if block>=processes[pid]:
-                    self.memory[i] -= processes[pid]
-                    flag = False
-                    allotedDict[pid] = 1
-                    break
+            tmpMemory = copy.deepcopy(newMemory)
+            for i, block in enumerate(tmpMemory):
+                if type(block)!=tuple:
+                    if block>=processes[pid]:
+                        newMemory[i] = (pid, processes[pid])
+                        if block!=processes[pid]:
+                            newMemory.insert(i+1, block-processes[pid])
+                        flag = False
+                        allotedDict[pid] = 1
+                        break
             if flag:
                 allotedDict[pid] = 0
-        return allotedDict
+        self.memory = [x for x in newMemory if type(x)!=tuple]
+    
+        output = Output("First Fit", newMemory, allotedDict)
+        return output
     
     def bestFit(self, processDict):
+        Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
+        newMemory = copy.deepcopy(self.memory)
         allotedDict = {}
         for pid in processes.keys():
             m = None
-            for i, block in enumerate(self.memory):
-                if m==None and block>=processes[pid]:
-                    m = block - processes[pid]
-                    index = i
-                elif block>=processes[pid] and block-processes[pid]<m:
-                    m = block - processes[pid] 
-                    index = i
+            tmpMemory = copy.deepcopy(newMemory)
+            for i, block in enumerate(tmpMemory):
+                if type(block)!=tuple:
+                    if m==None and block>=processes[pid]:
+                        m = block - processes[pid]
+                        index = i
+                    elif block>=processes[pid] and block-processes[pid]<m:
+                        m = block - processes[pid] 
+                        index = i
             if m==None:
                 allotedDict[pid] = 0
             else:
-                self.memory[index] = self.memory[index] - processes[pid]
+                tmp = newMemory[index]
+                newMemory[index] = (pid, processes[pid])
+                if tmp!=processes[pid]:
+                    newMemory.insert(index+1, tmp-processes[pid])
                 allotedDict[pid] = 1
-        return allotedDict
+        self.memory = [x for x in newMemory if type(x)!=tuple]
+    
+        output = Output("Best Fit", newMemory, allotedDict)
+        return output
     
     def worstFit(self, processDict):
+        Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
+        newMemory = copy.deepcopy(self.memory)
         allotedDict = {}
         for pid in processes.keys():
             m = None
-            for i, block in enumerate(self.memory):
-                if m==None and block>=processes[pid]:
-                    m = block - processes[pid]
-                    index = i
-                elif block>=processes[pid] and block-processes[pid]>m:
-                    m = block - processes[pid] 
-                    index = i
+            tmpMemory = copy.deepcopy(newMemory)
+            for i, block in enumerate(tmpMemory):
+                if type(block)!=tuple:
+                    if m==None and block>=processes[pid]:
+                        m = block - processes[pid]
+                        index = i
+                    elif block>=processes[pid] and block-processes[pid]>m:
+                        m = block - processes[pid] 
+                        index = i
             if m==None:
                 allotedDict[pid] = 0
             else:
-                self.memory[index] = self.memory[index] - processes[pid]
+                tmp = newMemory[index]
+                newMemory[index] = (pid, processes[pid])
+                if tmp!=processes[pid]:
+                    newMemory.insert(index+1, tmp-processes[pid])
                 allotedDict[pid] = 1
-        return allotedDict
+        self.memory = [x for x in newMemory if type(x)!=tuple]
+    
+        output = Output("Worst Fit", newMemory, allotedDict)
+        return output
     
     def nextFit(self, processDict):
+        Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
+        newMemory = copy.deepcopy(self.memory)
         allotedDict = {}
-        size = len(self.memory)
+        n = len(newMemory)
         for pid in processes.keys():
-            prevIndex = (self.pointer + size - 1) % size
+            prevIndex = (self.pointer + n - 1) % n
             flag = True
             while self.pointer!=prevIndex:
-                if self.memory[self.pointer]>=processes[pid]:
-                    self.memory[self.pointer] -= processes[pid]
+
+                if type(newMemory[self.pointer])==int and newMemory[self.pointer]>=processes[pid]:
+                    tmp = newMemory[self.pointer]
+                    newMemory[self.pointer] = (pid, processes[pid])
+                    self.pointer = self.pointer + 1
+                    if tmp!=processes[pid]:
+                        newMemory.insert(self.pointer, tmp-processes[pid])
+                        n += 1
                     allotedDict[pid] = 1
                     flag = False
                     break
                 else:
-                    self.pointer = (self.pointer + 1) % size
-            if self.memory[self.pointer]>=processes[pid]:
-                self.memory[self.pointer] -= processes[pid]
+                    self.pointer = (self.pointer + 1) % n
+            if type(newMemory[self.pointer])==int and newMemory[self.pointer]>=processes[pid] and flag:
+                tmp = newMemory[self.pointer]
+                newMemory[self.pointer] = (pid, processes[pid])
+                self.pointer = self.pointer + 1
+                if tmp!=processes[pid]:
+                    newMemory.insert(self.pointer, tmp-processes[pid])
+                    n += 1
                 allotedDict[pid] = 1
                 flag = False
             if flag:
                 allotedDict[pid] = 0
-        return allotedDict
+
+        self.memory = [x for x in newMemory if type(x)!=tuple]
+        output = Output("Next Fit", newMemory, allotedDict)
+        return output
     

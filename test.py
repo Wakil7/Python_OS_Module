@@ -78,124 +78,138 @@ visual = v.Visualize()
 # visual.ganttchart(srtfout)
 # visual.ganttchart(prout)
 
-# ds = d.DiskScheduler(200)
+ds = d.DiskScheduler(200)
 
-# requestLst = [50, 91, 150, 92, 130, 18, 140, 70, 60]
-# ds.addRequests(requestLst)
-# head = 53
+requestLst = [50, 91, 150, 92, 130, 18, 140, 70, 60]
+ds.addRequests(requestLst)
+head = 53
 
-# lst, mov = ds.fcfs(head)
-# print("FCFS:", lst)
-# print("Total head movement:", mov)
-# print()
+fcfsdout = ds.fcfs(head)
+print("FCFS:", fcfsdout.servedorder)
+print("Total head movement:", fcfsdout.movement)
+print()
 
-# lst, mov = ds.sstf(head)
-# print("SSTF:", lst)
-# print("Total head movement:", mov)
-# print()
+sstfout = ds.sstf(head)
+print("SSTF:", sstfout.servedorder)
+print("Total head movement:", sstfout.movement)
+print()
 
-# lst, mov = ds.scan(head)
-# print("SCAN:", lst)
-# print("Total head movement:", mov)
-# print()
+scanout = ds.scan(head)
+print("SCAN:", scanout.servedorder)
+print("Total head movement:", scanout.movement)
+print()
 
-# lst, mov = ds.cscan(head)
-# print("C-SCAN:", lst)
-# print("Total head movement:", mov)
-# print()
+cscanout = ds.cscan(head)
+print("C-SCAN:", cscanout.servedorder)
+print("Total head movement:", scanout.movement)
+print()
 
-# lst, mov = ds.look(head)
-# print("LOOK:", lst)
-# print("Total head movement:", mov)
-# print()
+lookout = ds.look(head)
+print("LOOK:", lookout.servedorder)
+print("Total head movement:", lookout.movement)
+print()
 
-# lst, mov = ds.clook(head)
-# print("C-LOOK:", lst)
-# print("Total head movement:", mov)
-# print()
+clookout = ds.clook(head)
+print("C-LOOK:", clookout.servedorder)
+print("Total head movement:", clookout.movement)
+print()
 
-pr = p.PageReplacer(4)
-requestLst = [1,2,3,4,5,3,2,6,1,3,2,4,5,6,5,4,2,3,2,1,2,3,2,5,6]
-
-randout = pr.rand(requestLst)
-print("Random Hit =", randout.hits)
-
-pr.clearFrames()
-fifoout = pr.fifo(requestLst)
-print("FIFO Hit =", fifoout.hits)
-
-pr.clearFrames()
-lruout = pr.lru(requestLst)
-print("LRU Hit =", lruout.hits)
-
-pr.clearFrames()
-mruout = pr.mru(requestLst)
-print("MRU Hit =", mruout.hits)
-
-pr.clearFrames()
-lfuout = pr.lfu(requestLst)
-print("LFU Hit =", lfuout.hits)
-
-pr.clearFrames()
-mfuout = pr.mfu(requestLst)
-print("MFU Hit =", mfuout.hits)
-
-pr.clearFrames()
-clockout = pr.clock(requestLst)
-print("Clock Hit =", clockout.hits)
-
-pr.clearFrames()
-optout = pr.optimal(requestLst)
-print("Optimal Hit =", optout.hits)
+visual.headmovement(fcfsdout)
+visual.headmovement(sstfout)
+visual.headmovement(scanout)
+visual.headmovement(cscanout)
+visual.headmovement(lookout)
+visual.headmovement(clookout)
 
 
-visual.replacementtable(randout)
-visual.replacementtable(fifoout)
-visual.replacementtable(lruout)
-visual.replacementtable(mruout)
-visual.replacementtable(lfuout)
-visual.replacementtable(mfuout)
-visual.replacementtable(clockout)
-visual.replacementtable(optout)
+# pr = p.PageReplacer(4)
+# requestLst = [1,2,3,4,5,3,2,6,1,3,2,4,5,6,5,4,2,3,2,1,2,3,2,5,6]
+
+# randout = pr.rand(requestLst)
+# print("Random Hit =", randout.hits)
+
+# pr.clearFrames()
+# fifoout = pr.fifo(requestLst)
+# print("FIFO Hit =", fifoout.hits)
+
+# pr.clearFrames()
+# lruout = pr.lru(requestLst)
+# print("LRU Hit =", lruout.hits)
+
+# pr.clearFrames()
+# mruout = pr.mru(requestLst)
+# print("MRU Hit =", mruout.hits)
+
+# pr.clearFrames()
+# lfuout = pr.lfu(requestLst)
+# print("LFU Hit =", lfuout.hits)
+
+# pr.clearFrames()
+# mfuout = pr.mfu(requestLst)
+# print("MFU Hit =", mfuout.hits)
+
+# pr.clearFrames()
+# clockout = pr.clock(requestLst)
+# print("Clock Hit =", clockout.hits)
+
+# pr.clearFrames()
+# optout = pr.optimal(requestLst)
+# print("Optimal Hit =", optout.hits)
+
+
+# visual.replacementtable(randout)
+# visual.replacementtable(fifoout)
+# visual.replacementtable(lruout)
+# visual.replacementtable(mruout)
+# visual.replacementtable(lfuout)
+# visual.replacementtable(mfuout)
+# visual.replacementtable(clockout)
+# visual.replacementtable(optout)
 
 
 # memoryStatus = [100, 320, 500, 200, 300, 600]
 # processDict = {
-#     1000: 212,
-#     1001: 98,
-#     1002: 417,
-#     1003: 112,
-#     1004: 426
+#     "P0": 212,
+#     "P1": 98,
+#     "P2": 417,
+#     "P3": 112,
+#     "P4": 426
 # }
 # ma = m.MemoryAllocator(memoryStatus)
 
-# allocated = ma.firstFit(processDict)
-# print("Process Status:", allocated)
+# ffout = ma.firstFit(processDict)
+# print("Process Status:", ffout.result)
 # print("Available Memory:", ma.getMemoryStatus())
 # print("Total Available Memory:", ma.totalFreeMemory())
 # print()
 
 # ma.updateBlocks(memoryStatus)
 
-# allocated = ma.bestFit(processDict)
-# print("Process Status:", allocated)
+# bfout = ma.bestFit(processDict)
+# print("Process Status:", bfout.result)
 # print("Available Memory:", ma.getMemoryStatus())
 # print("Total Available Memory:", ma.totalFreeMemory())
 # print()
 
 # ma.updateBlocks(memoryStatus)
 
-# allocated = ma.worstFit(processDict)
-# print("Process Status:", allocated)
+# wfout = ma.worstFit(processDict)
+# print("Process Status:", wfout.result)
 # print("Available Memory:", ma.getMemoryStatus())
 # print("Total Available Memory:", ma.totalFreeMemory())
 # print()
 
 # ma.updateBlocks(memoryStatus)
 
-# allocated = ma.nextFit(processDict)
-# print("Process Status:", allocated)
+# nfout = ma.nextFit(processDict)
+# print("Process Status:", nfout.result)
 # print("Available Memory:", ma.getMemoryStatus())
 # print("Total Available Memory:", ma.totalFreeMemory())
 # print()
+
+# visual.memoryStatus(ffout)
+# visual.memoryStatus(bfout)
+# visual.memoryStatus(wfout)
+# visual.memoryStatus(nfout)
+
 

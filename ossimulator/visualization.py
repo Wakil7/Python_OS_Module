@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 import copy
 class Visualize:
 
@@ -74,6 +75,57 @@ class Visualize:
 
         plt.title(data.name, fontsize=25)
         plt.show()
+
+    def memorystatus(self, data):
+        memoryData = data.visualdata
+
+        n = len(memoryData)
+
+        plt.figure(figsize=(12, 4))
+        plt.axis("off")
+        plt.xlim(0, n+1)
+        plt.ylim(0, 20)
+        plt.title(data.name + " Memory Status")
+
+        for i, block in enumerate(memoryData):
+            if type(block)==tuple:
+                bgcolor="#03ff24"
+                size = str(block[1])
+                txt = str(block[0])
+            else:
+                bgcolor="skyblue"
+                size = block
+                txt = "Free"
+            plt.barh(15, 1, left=i, height=5, color=bgcolor, edgecolor="black")
+            plt.text(i+0.5, 16, txt, color="black", fontweight="bold", ha="center", va="center")
+            
+            plt.text(i+0.5, 14, size, color="black", fontweight="bold", ha="center", va="center")
+        plt.show()
+    
+    def headmovement(self, data):
+        movementData = copy.deepcopy(data.servedorder)
+        size = len(movementData)
+        plt.title(data.name + " Head Movement")
+        plt.xlim(0, data.disksize)
+        plt.ylim(0, size+1)
+        plt.gca().axes.yaxis.set_visible(False)
+        line, = plt.plot([], [], color="red", linestyle="-")
+        head, = plt.plot([], [], marker="o", color="blue", linestyle="")
+        x = []
+        y = []
+
+        def addData(n):
+            if n<size:
+                x.append(movementData[n])
+                y.append(size-n)
+                head.set_data(x, y)
+                line.set_data(x, y)
+            return head, line
+        
+        anim = FuncAnimation(plt.gcf(), addData, frames=size, interval=500, repeat=False)
+        plt.show()
+
+
 
 
     
