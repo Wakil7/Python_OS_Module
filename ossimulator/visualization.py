@@ -11,7 +11,7 @@ class Visualize:
         plt.axis("off")
         plt.xlim(0, n+1)
         plt.ylim(0, 20)
-        plt.title(data.name + " Gantt Chart")
+        plt.title(data.name + " Scheduling Gantt Chart", fontweight="bold")
         plt.text(0, 11, "0", color="black", fontweight="bold", ha="center", va="center")
 
         for i, tup in enumerate(chartLst):
@@ -24,6 +24,9 @@ class Visualize:
             plt.barh(15, 1, left=i, height=5, color=bgcolor, edgecolor="black")
             plt.text(i+0.5, 15, str(pid), color="black", fontweight="bold", ha="center", va="center")
             plt.text(i+1, 11, str(ct), color="black", fontweight="bold", ha="center", va="center")
+        
+        plt.text(n/2, 5, f"Average Turnaround Time: {data.avgtt} ms", color="black", ha="left", va="center", fontsize=12)
+        plt.text(n/2, 3, f"Average Waiting Time:  {data.avgwt} ms", color="black", ha="left", va="center", fontsize=12)
         plt.show()
 
     def replacementtable(self, data):

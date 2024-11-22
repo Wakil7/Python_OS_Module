@@ -1,86 +1,81 @@
 import random
 import copy
 from collections import namedtuple
+
 class PageReplacer:
-    def __init__(self, n):
-        self.size = n
-        self.frames = [None]*n
 
-    def clearFrames(self):
-        self.frames = [None]*self.size
-
-    def rand(self, requests):
+    def rand(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] #[self.frames, req, {"H":index, "R":index}]
+        framesLst = [] #[memoryObj.frames, req, {"H":index, "R":index}]
         hit = 0
         for req in requests:
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit+=1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
             else:
                 flag = True
-                for i in range(self.size):
-                    if self.frames[i]==None:
-                        self.frames[i] = req
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i]==None:
+                        memoryObj.frames[i] = req
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag = False
                         break
                 if flag:
-                    x = random.randint(0, self.size-1)
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    x = random.randint(0, memoryObj.frameSize-1)
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = x
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[x] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
-        output = Output("Random Page Replacement", chartLst, hit)
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[x] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
+        output = Output("Random Page Replacement", framesLst, hit)
         return output
     
-    def fifo(self, requests):
+    def fifo(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
+        framesLst = [] 
         index = 0
         hit = 0
         for req in requests:
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit+=1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
             else:
                 flag = True
-                for i in range(self.size):
-                    if self.frames[i]==None:
-                        self.frames[i] = req
-                        index = (i + 1) % self.size
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i]==None:
+                        memoryObj.frames[i] = req
+                        index = (i + 1) % memoryObj.frameSize
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag = False
                         break
                 if flag:
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = index
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[index] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
-                    index = (index + 1) % self.size
-        output = Output("FIFO Page Replacement", chartLst, hit)
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[index] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
+                    index = (index + 1) % memoryObj.frameSize
+        output = Output("FIFO Page Replacement", framesLst, hit)
         return output
     
-    def lru(self, requests):
+    def lru(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
-        usedDict = {x:1 for x in self.frames if x is not None}
+        framesLst = [] 
+        usedDict = {x:1 for x in memoryObj.frames if x is not None}
         hit = 0
         for req in requests:
             usedDict = dict(map(lambda x: [x[0], x[1]+1], usedDict.items()))
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit += 1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
                 usedDict[req] = 1
             else:
                 flag=True
-                for i in range(self.size):
-                    if self.frames[i] == None:
-                        self.frames[i] = req
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i] == None:
+                        memoryObj.frames[i] = req
                         usedDict[req] = 1
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag=False
                         break
                         
@@ -92,34 +87,34 @@ class PageReplacer:
                             page = k
                     
                     del usedDict[page]
-                    x = self.frames.index(page)
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    x = memoryObj.frames.index(page)
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = x
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[x] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[x] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     usedDict[req] = 1
-        output = Output("LRU Page Replacement", chartLst, hit)
+        output = Output("LRU Page Replacement", framesLst, hit)
         return output
     
-    def mru(self, requests):
+    def mru(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
-        usedDict = {x:1 for x in self.frames if x is not None}
+        framesLst = [] 
+        usedDict = {x:1 for x in memoryObj.frames if x is not None}
         hit = 0
         for req in requests:
             usedDict = dict(map(lambda x: [x[0], x[1]+1], usedDict.items()))
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit += 1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
                 usedDict[req] = 1
             else:
                 flag=True
-                for i in range(self.size):
-                    if self.frames[i] == None:
-                        self.frames[i] = req
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i] == None:
+                        memoryObj.frames[i] = req
                         usedDict[req] = 1
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag=False
                         break
                         
@@ -131,173 +126,173 @@ class PageReplacer:
                             page = k
                     
                     del usedDict[page]
-                    x = self.frames.index(page)
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    x = memoryObj.frames.index(page)
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = x
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[x] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[x] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     usedDict[req] = 1
-        output = Output("MRU Page Replacement", chartLst, hit)
+        output = Output("MRU Page Replacement", framesLst, hit)
         return output
     
-    def lfu(self, requests):
+    def lfu(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
+        framesLst = [] 
         hit = 0
-        hitDict = {x:0 for x in self.frames if x is not None}
+        hitDict = {x:0 for x in memoryObj.frames if x is not None}
         for req in requests:
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit += 1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
                 hitDict[req] += 1
             else:
                 flag = True
-                for i in range(self.size):
-                    if self.frames[i]==None:
-                        self.frames[i] = req
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i]==None:
+                        memoryObj.frames[i] = req
                         hitDict[req] = 0
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag = False
                         break
                 if flag:
                     m = None
-                    tempDict = dict(filter(lambda x: True if x[0] in self.frames else False, hitDict.items()))
+                    tempDict = dict(filter(lambda x: True if x[0] in memoryObj.frames else False, hitDict.items()))
                     for k in tempDict.keys():
                         if m==None or tempDict[k]<m:
                             m = tempDict[k]
                             page = k
                     
-                    x = self.frames.index(page)
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    x = memoryObj.frames.index(page)
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = x
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[x] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[x] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     if req in hitDict.keys():
                         hitDict[req]+=1
                     else:
                         hitDict[req]=0
                         
-        output = Output("LFU Page Replacement", chartLst, hit)
+        output = Output("LFU Page Replacement", framesLst, hit)
         return output
     
-    def mfu(self, requests):
+    def mfu(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
+        framesLst = [] 
         hit = 0
-        hitDict = {x:0 for x in self.frames if x is not None}
+        hitDict = {x:0 for x in memoryObj.frames if x is not None}
         for req in requests:
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit += 1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
                 hitDict[req] += 1
             else:
                 flag = True
-                for i in range(self.size):
-                    if self.frames[i]==None:
-                        self.frames[i] = req
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i]==None:
+                        memoryObj.frames[i] = req
                         hitDict[req] = 0
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag = False
                         break
                 if flag:
                     m = None
-                    tempDict = dict(filter(lambda x: True if x[0] in self.frames else False, hitDict.items()))
+                    tempDict = dict(filter(lambda x: True if x[0] in memoryObj.frames else False, hitDict.items()))
                     for k in tempDict.keys():
                         if m==None or tempDict[k]>m:
                             m = tempDict[k]
                             page = k
                     
-                    x = self.frames.index(page)
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    x = memoryObj.frames.index(page)
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = x
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[x] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[x] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     if req in hitDict.keys():
                         hitDict[req]+=1
                     else:
                         hitDict[req]=0
                         
-        output = Output("MFU Page Replacement", chartLst, hit)
+        output = Output("MFU Page Replacement", framesLst, hit)
         return output
     
-    def clock(self, requests):
+    def clock(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
-        useBitDict = {x:1 for x in self.frames if x is not None}
+        framesLst = [] 
+        useBitDict = {x:1 for x in memoryObj.frames if x is not None}
         hit = 0
         index = 0
         for req in requests:
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit += 1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
                 useBitDict[req] = 1
             else:
                 flag = True
-                for i in range(self.size):
-                    if self.frames[i]==None:
-                        self.frames[i]=req
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i]==None:
+                        memoryObj.frames[i]=req
                         useBitDict[req] = 1
-                        index = (i + 1) % self.size
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                        index = (i + 1) % memoryObj.frameSize
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag = False
                         break
                 if flag:
-                    while (useBitDict[self.frames[index]]!=0):
-                        useBitDict[self.frames[index]] = 0
-                        index = (index + 1) % self.size
+                    while (useBitDict[memoryObj.frames[index]]!=0):
+                        useBitDict[memoryObj.frames[index]] = 0
+                        index = (index + 1) % memoryObj.frameSize
 
-                    del useBitDict[self.frames[index]]
+                    del useBitDict[memoryObj.frames[index]]
                     
-                    tmpDict = copy.deepcopy(chartLst[-1][2])
+                    tmpDict = copy.deepcopy(framesLst[-1][2])
                     tmpDict["R"] = index
-                    chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                    self.frames[index] = req
-                    chartLst.append([copy.deepcopy(self.frames), req, {}])
-                    index = (index + 1) % self.size
+                    framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                    memoryObj.frames[index] = req
+                    framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
+                    index = (index + 1) % memoryObj.frameSize
                     useBitDict[req]=1
-        output = Output("Clock Page Replacement", chartLst, hit)
+        output = Output("Clock Page Replacement", framesLst, hit)
         return output
     
-    def optimal(self, requests):
+    def optimal(self, requests, memoryObj):
         Output = namedtuple("Output", ["name", "chartdata", "hits"])
-        chartLst = [] 
+        framesLst = [] 
         hit = 0
         for index, req in enumerate(requests):
-            if req in self.frames:
+            if req in memoryObj.frames:
                 hit += 1
-                chartLst.append([copy.deepcopy(self.frames), req, {"H": self.frames.index(req)}])
+                framesLst.append([copy.deepcopy(memoryObj.frames), req, {"H": memoryObj.frames.index(req)}])
             else:
                 flag = True
-                for i in range(self.size):
-                    if self.frames[i]==None:
-                        self.frames[i] = req
-                        chartLst.append([copy.deepcopy(self.frames), req, {}])
+                for i in range(memoryObj.frameSize):
+                    if memoryObj.frames[i]==None:
+                        memoryObj.frames[i] = req
+                        framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                         flag = False
                         break
                 if flag:
                     s = set()
                     for r in requests[index+1:]:
-                        if r in self.frames:
+                        if r in memoryObj.frames:
                             s.add(r)
-                            if len(s)==self.size:
-                                x = self.frames.index(r)
-                                tmpDict = copy.deepcopy(chartLst[-1][2])
+                            if len(s)==memoryObj.frameSize:
+                                x = memoryObj.frames.index(r)
+                                tmpDict = copy.deepcopy(framesLst[-1][2])
                                 tmpDict["R"] = x
-                                chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                                self.frames[x] = req
-                                chartLst.append([copy.deepcopy(self.frames), req, {}])
+                                framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                                memoryObj.frames[x] = req
+                                framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                                 break
-                    if len(s)!=self.size:
-                        for x, r in enumerate(self.frames):
+                    if len(s)!=memoryObj.frameSize:
+                        for x, r in enumerate(memoryObj.frames):
                             if r not in s:
-                                tmpDict = copy.deepcopy(chartLst[-1][2])
+                                tmpDict = copy.deepcopy(framesLst[-1][2])
                                 tmpDict["R"] = x
-                                chartLst[-1] = [copy.deepcopy(self.frames), chartLst[-1][1], tmpDict]
-                                self.frames[x] = req
-                                chartLst.append([copy.deepcopy(self.frames), req, {}])
+                                framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
+                                memoryObj.frames[x] = req
+                                framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                                 break
-        output = Output("Optimal Page Replacement", chartLst, hit)
+        output = Output("Optimal Page Replacement", framesLst, hit)
         return output

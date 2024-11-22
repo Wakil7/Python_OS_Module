@@ -2,23 +2,13 @@ import copy
 from collections import namedtuple
 
 class MemoryAllocator:
-    def __init__(self, freeLst):
-        self.memory = copy.deepcopy(freeLst)
-        self.pointer = 0
-    def updateBlocks(self, freeLst):
-        self.memory = copy.deepcopy(freeLst)
+    def __init__(self):
         self.pointer = 0
 
-    def getMemoryStatus(self):
-        return self.memory
-    
-    def totalFreeMemory(self):
-        return sum(self.memory)
-
-    def firstFit(self, processDict):
+    def firstFit(self, processDict, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
-        newMemory = copy.deepcopy(self.memory)
+        newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         for pid in processes.keys():
             flag = True
@@ -27,6 +17,7 @@ class MemoryAllocator:
                 if type(block)!=tuple:
                     if block>=processes[pid]:
                         newMemory[i] = (pid, processes[pid])
+                        self.pointer = i + 1
                         if block!=processes[pid]:
                             newMemory.insert(i+1, block-processes[pid])
                         flag = False
@@ -34,15 +25,15 @@ class MemoryAllocator:
                         break
             if flag:
                 allotedDict[pid] = 0
-        self.memory = [x for x in newMemory if type(x)!=tuple]
+        memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
     
         output = Output("First Fit", newMemory, allotedDict)
         return output
     
-    def bestFit(self, processDict):
+    def bestFit(self, processDict, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
-        newMemory = copy.deepcopy(self.memory)
+        newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         for pid in processes.keys():
             m = None
@@ -60,18 +51,19 @@ class MemoryAllocator:
             else:
                 tmp = newMemory[index]
                 newMemory[index] = (pid, processes[pid])
+                self.pointer = index + 1
                 if tmp!=processes[pid]:
                     newMemory.insert(index+1, tmp-processes[pid])
                 allotedDict[pid] = 1
-        self.memory = [x for x in newMemory if type(x)!=tuple]
+        memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
     
         output = Output("Best Fit", newMemory, allotedDict)
         return output
     
-    def worstFit(self, processDict):
+    def worstFit(self, processDict, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
-        newMemory = copy.deepcopy(self.memory)
+        newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         for pid in processes.keys():
             m = None
@@ -89,18 +81,19 @@ class MemoryAllocator:
             else:
                 tmp = newMemory[index]
                 newMemory[index] = (pid, processes[pid])
+                self.pointer = index + 1
                 if tmp!=processes[pid]:
                     newMemory.insert(index+1, tmp-processes[pid])
                 allotedDict[pid] = 1
-        self.memory = [x for x in newMemory if type(x)!=tuple]
+        memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
     
         output = Output("Worst Fit", newMemory, allotedDict)
         return output
     
-    def nextFit(self, processDict):
+    def nextFit(self, processDict, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = copy.deepcopy(processDict)
-        newMemory = copy.deepcopy(self.memory)
+        newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         n = len(newMemory)
         for pid in processes.keys():
@@ -132,7 +125,7 @@ class MemoryAllocator:
             if flag:
                 allotedDict[pid] = 0
 
-        self.memory = [x for x in newMemory if type(x)!=tuple]
+        memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
         output = Output("Next Fit", newMemory, allotedDict)
         return output
     

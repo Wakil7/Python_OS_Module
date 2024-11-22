@@ -22,7 +22,7 @@ class CpuScheduler:
         return lst
 
     def avg(self, data, key):
-        processes = copy.deepcopy(data.result)
+        processes = copy.deepcopy(data)
         d = {"TT": 1, "WT": 2}
         if key not in d:
             return -1
@@ -31,11 +31,11 @@ class CpuScheduler:
         s = sum(list(map(lambda x: x[index], processes.values())))
 
         avg = s/len(processes)
-        return avg
+        return round(avg, 2)
 
 
     def fcfs(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         readyQueue = self.sorted(processes, key="AT")
         resultDict = {}
@@ -56,11 +56,14 @@ class CpuScheduler:
             wt = tt-process[2]
             resultDict[process[0]] = [time, tt, wt]
             chartLst.append((process[0], time))
-        output = Output("FCFS", chartLst, resultDict)
+        
+        avgtt = self.avg(resultDict, "TT")
+        avgwt = self.avg(resultDict, "WT")
+        output = Output("FCFS", chartLst, resultDict, avgtt, avgwt)
         return output
 
     def sjf(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -91,11 +94,13 @@ class CpuScheduler:
                 chartLst.append((readyQueue[0][0], time))
                 del readyDict[readyQueue[0][0]]
                 count += 1
-        output = Output("SJF", chartLst, resultDict)
+        avgtt = self.avg(resultDict, "TT")
+        avgwt = self.avg(resultDict, "WT")
+        output = Output("SJF", chartLst, resultDict, avgtt, avgwt)
         return output
 
     def prioritynp(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -126,11 +131,14 @@ class CpuScheduler:
                 chartLst.append((readyQueue[0][0], time))
                 del readyDict[readyQueue[0][0]]
                 count += 1
-        output = Output("Non-Preemptive Priority", chartLst, resultDict)
+        
+        avgtt = self.avg(resultDict, "TT")
+        avgwt = self.avg(resultDict, "WT")
+        output = Output("Non-Preemptive Priority", chartLst, resultDict, avgtt, avgwt)
         return output
 
     def rr(self, tasks, quantum=1):
-        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -186,12 +194,15 @@ class CpuScheduler:
                 tmp = readyQueue[0]
                 readyQueue.pop(0)
                 readyQueue.append(tmp)
-        output = Output("Round Robin", chartLst, resultDict)
+            
+        avgtt = self.avg(resultDict, "TT")
+        avgwt = self.avg(resultDict, "WT")
+        output = Output("Round Robin", chartLst, resultDict, avgtt, avgwt)
         return output
 
 
     def srtf(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -240,11 +251,14 @@ class CpuScheduler:
                         currProcess = readyQueue[0][0]
                     time = time + 1
                     readyDict[readyQueue[0][0]][1] -= 1
-        output = Output("SRTF", chartLst, resultDict)   
+
+        avgtt = self.avg(resultDict, "TT")
+        avgwt = self.avg(resultDict, "WT")
+        output = Output("SRTF", chartLst, resultDict, avgtt, avgwt)   
         return output
 
     def priorityp(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result"])
+        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -293,5 +307,8 @@ class CpuScheduler:
                         currProcess = readyQueue[0][0]
                     time = time + 1
                     readyDict[readyQueue[0][0]][1] -= 1
-        output = Output("Preemptive Priority", chartLst, resultDict)   
+        
+        avgtt = self.avg(resultDict, "TT")
+        avgwt = self.avg(resultDict, "WT")
+        output = Output("Preemptive Priority", chartLst, resultDict, avgtt, avgwt)   
         return output
