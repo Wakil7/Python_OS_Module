@@ -1,7 +1,8 @@
 from collections import namedtuple
+
 class DiskScheduler:
     
-    def seek(self, diskObj, start, near = False, lst=[]):
+    def seek(self, diskObj, start, near = False, d="left", lst=[]):
         head = start
         if lst==[]:
             reqLst = sorted(diskObj.requests)
@@ -28,30 +29,39 @@ class DiskScheduler:
                             head = reqLst[i]
                             index = i
                         return head, movement, index
-                    movement = abs(head-reqLst[i-1])
-                    head = reqLst[i-1]
-                    index = i-1
+                    if d.lower()=="right":
+                        movement = abs(head-reqLst[i])
+                        head = reqLst[i]
+                        index = i
+                    else:
+                        movement = abs(head-reqLst[i-1])
+                        head = reqLst[i-1]
+                        index = i-1
+
                     break
         return head, movement, index
 
 
     def fcfs(self, diskObj):
-        Output = namedtuple("Output", ["name", "servedorder", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
         head = diskObj.head
+        reqLst = [head]
         movement = 0
         for r in diskObj.requests:
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
-        output = Output("FCFS", diskObj.requests, diskObj.size, movement)
+        reqLst.extend(diskObj.requests)
+        output = Output("FCFS", reqLst, diskObj.size, movement)
         return output
 
     def sstf(self, diskObj):
-        Output = namedtuple("Output", ["name", "servedorder", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
+        
         reqLst = sorted(diskObj.requests)
         head = diskObj.head
-        outList = []
+        outList = [head]
         movement = 0
 
         while len(reqLst)!=0:
@@ -67,142 +77,180 @@ class DiskScheduler:
         return output
 
 
-    def scan(self, diskObj):
-        Output = namedtuple("Output", ["name", "servedorder", "disksize", "movement"])
+    def scan(self, diskObj, direction="left"):
+        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
         head = diskObj.head
         reqLst = sorted(diskObj.requests)
-        outList = []
-
-        head, movement, index = self.seek(diskObj, head)
+        n = len(reqLst)
+        outList = [head]
         
+        head, movement, index = self.seek(diskObj, head, d=direction)
         oldind = index
-        while index>=0:
-            r = reqLst[index]
-            if (r>=diskObj.size or r<0):
-                return False
-            movement += abs(head-r)
-            head = r
-            outList.append(r)
-            index -= 1
 
-        movement += head
-        head = 0
-        outList.append(0)
-        index = oldind + 1
-        while index<len(reqLst):
+        def fetch():
+            nonlocal movement, head, outList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
             outList.append(r)
-            index += 1
+
+        if direction.lower()=="right":
+            while index<n:
+                if fetch()==False:
+                    return False
+                index +=1
+            r = diskObj.size-1
+            movement += abs(head-r)
+            head = r
+            outList.append(r)
+            index = oldind-1
+            while index>=0:
+                fetch()
+                index -= 1
+        else:
+            while index>=0:
+                fetch()
+                index -= 1
+            movement += head
+            head = 0
+            outList.append(0)
+            index = oldind + 1
+            while index<n:
+                fetch()
+                index += 1
         
         output = Output("SCAN", outList, diskObj.size, movement)
         return output
 
-    def cscan(self, diskObj):
-        Output = namedtuple("Output", ["name", "servedorder", "disksize", "movement"])
+    def cscan(self, diskObj, direction="left"):
+        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
         head = diskObj.head
         reqLst = sorted(diskObj.requests)
-        outList = []
-        head, movement, index = self.seek(diskObj, head)
-        outList.append(reqLst[index])
-        oldind = index
-        while index>0:
-            index -= 1
-            r = reqLst[index]
-            if (r>=diskObj.size or r<0):
-                return False
-            movement += abs(head-r)
-            head = r
-            outList.append(r)
-        movement += head
-        outList.append(0)
-        head = diskObj.size-1
-        movement += head
-        outList.append(diskObj.size-1)
-        
-        head, mov, index = self.seek(diskObj, head)
-        movement += mov
+        n = len(reqLst)
+        outList = [head]
 
-        while index>oldind:
+        head, movement, index = self.seek(diskObj, head, d=direction)
+        oldind = index
+
+        def fetch():
+            nonlocal movement, head, outList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
             outList.append(r)
-            index -= 1
+
+        if direction.lower()=="right":
+            while index<n:
+                fetch()
+                index += 1
+            r = diskObj.size-1
+            movement += abs(head-r)
+            outList.append(r)
+            movement += diskObj.head-1
+            outList.append(0)
+            head = 0
+            head, mov, index = self.seek(diskObj, head, d=direction)
+            movement += mov
+            while index<oldind:
+                fetch()
+                index += 1
+        else:
+            while index>=0:
+                fetch()
+                index -= 1
+            movement += head
+            outList.append(0)
+            head = diskObj.size-1
+            movement += head
+            outList.append(diskObj.size-1)
+            head, mov, index = self.seek(diskObj, head, d=direction)
+            movement += mov
+            while index>oldind:
+                fetch()
+                index -= 1
         
         output = Output("C-SCAN", outList, diskObj.size, movement)
         return output
 
-    def look(self, diskObj):
-        Output = namedtuple("Output", ["name", "servedorder", "disksize", "movement"])
+    def look(self, diskObj, direction="left"):
+        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
         head = diskObj.head
         reqLst = sorted(diskObj.requests)
-        outList = []
-        if head>=diskObj.size or head<0:
-            return -1
+        n = len(reqLst)
+        outList = [head]
 
-        head, movement, index = self.seek(diskObj, head)
-        
+        head, movement, index = self.seek(diskObj, head, d=direction)
         oldind = index
-        while index>=0:
+
+        def fetch():
+            nonlocal movement, head, outList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
             outList.append(r)
-            index -= 1
 
-        index = oldind + 1
-
-        while index<len(reqLst):
-            r = reqLst[index]
-            if (r>=diskObj.size or r<0):
-                return False
-            movement += abs(head-r)
-            head = r
-            outList.append(r)
-            index += 1
+        if direction.lower()=="right":
+            while index<n:
+                fetch()
+                index += 1
+            index = oldind - 1
+            while index>=0:
+                fetch()
+                index -= 1
+        else:
+            while index>=0:
+                fetch()
+                index -= 1
+            index = oldind + 1
+            while index<n:
+                fetch()
+                index += 1
         
         output = Output("LOOK", outList, diskObj.size, movement)
         return output
 
 
-    def clook(self, diskObj):
-        Output = namedtuple("Output", ["name", "servedorder", "disksize", "movement"])
+    def clook(self, diskObj, direction="left"):
+        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
         head = diskObj.head
         reqLst = sorted(diskObj.requests)
-        outList = []
-        if head>=diskObj.size or head<0:
-            return -1
-        head, movement, index = self.seek(diskObj, head)
-        outList.append(reqLst[index])
-        oldind = index
-        while index>0:
-            index -= 1
-            r = reqLst[index]
-            if (r>=diskObj.size or r<0):
-                return False
-            movement += abs(head-r)
-            head = r
-            outList.append(r)
-        
-        index = len(reqLst)-1
-        
+        n = len(reqLst)
+        outList = [head]
 
-        while index>oldind:
+        head, movement, index = self.seek(diskObj, head, d=direction)
+        oldind = index
+
+        def fetch():
+            nonlocal movement, head, outList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
             outList.append(r)
-            index -= 1
+
+        if direction.lower()=="right":
+            while index<n:
+                fetch()
+                index += 1
+            index = 0
+            while index<oldind:
+                fetch()
+                index += 1
+        else:
+            while index>=0:
+                fetch()
+                index -= 1
+            index = n-1
+            while index>oldind:
+                fetch()
+                index -= 1
         
         output = Output("C-LOOK", outList, diskObj.size, movement)
         return output

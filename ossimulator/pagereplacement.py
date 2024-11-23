@@ -5,7 +5,7 @@ from collections import namedtuple
 class PageReplacer:
 
     def rand(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] #[memoryObj.frames, req, {"H":index, "R":index}]
         hit = 0
         for req in requests:
@@ -31,7 +31,7 @@ class PageReplacer:
         return output
     
     def fifo(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         index = 0
         hit = 0
@@ -59,7 +59,7 @@ class PageReplacer:
         return output
     
     def lru(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         usedDict = {x:1 for x in memoryObj.frames if x is not None}
         hit = 0
@@ -98,7 +98,7 @@ class PageReplacer:
         return output
     
     def mru(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         usedDict = {x:1 for x in memoryObj.frames if x is not None}
         hit = 0
@@ -137,7 +137,7 @@ class PageReplacer:
         return output
     
     def lfu(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         hit = 0
         hitDict = {x:0 for x in memoryObj.frames if x is not None}
@@ -178,7 +178,7 @@ class PageReplacer:
         return output
     
     def mfu(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         hit = 0
         hitDict = {x:0 for x in memoryObj.frames if x is not None}
@@ -219,7 +219,7 @@ class PageReplacer:
         return output
     
     def clock(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         useBitDict = {x:1 for x in memoryObj.frames if x is not None}
         hit = 0
@@ -257,7 +257,7 @@ class PageReplacer:
         return output
     
     def optimal(self, requests, memoryObj):
-        Output = namedtuple("Output", ["name", "chartdata", "hits"])
+        Output = namedtuple("Output", ["name", "visualdata", "hits"])
         framesLst = [] 
         hit = 0
         for index, req in enumerate(requests):

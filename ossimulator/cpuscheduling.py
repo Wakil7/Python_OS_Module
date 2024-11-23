@@ -35,7 +35,7 @@ class CpuScheduler:
 
 
     def fcfs(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
+        Output = namedtuple("Output", ["name", "visualdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         readyQueue = self.sorted(processes, key="AT")
         resultDict = {}
@@ -63,7 +63,7 @@ class CpuScheduler:
         return output
 
     def sjf(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
+        Output = namedtuple("Output", ["name", "visualdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -100,7 +100,7 @@ class CpuScheduler:
         return output
 
     def prioritynp(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
+        Output = namedtuple("Output", ["name", "visualdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -138,7 +138,7 @@ class CpuScheduler:
         return output
 
     def rr(self, tasks, quantum=1):
-        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
+        Output = namedtuple("Output", ["name", "visualdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -202,7 +202,7 @@ class CpuScheduler:
 
 
     def srtf(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
+        Output = namedtuple("Output", ["name", "visualdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0
@@ -258,7 +258,7 @@ class CpuScheduler:
         return output
 
     def priorityp(self, tasks):
-        Output = namedtuple("Output", ["name", "chartdata", "result", "avgtt", "avgwt"])
+        Output = namedtuple("Output", ["name", "visualdata", "result", "avgtt", "avgwt"])
         processes = copy.deepcopy(tasks.processDict)
         n = len(processes)
         time = 0

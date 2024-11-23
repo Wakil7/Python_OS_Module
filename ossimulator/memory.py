@@ -6,11 +6,11 @@ class Memory:
         self.mainSize = mainSize
         self.frameSize = frameSize
 
-    def setMainMemory(self, n, freeLst):
+    def setMainMemory(self, freeLst, n):
         if n<sum(freeLst):
             return False
         self.mainMemory = copy.deepcopy(freeLst)
-        self.size = n
+        self.mainSize = n
         return True
     
     def setFrames(self, lst):
@@ -31,4 +31,4 @@ class Memory:
         return sum(self.mainMemory)
     
     def totalOccupiedMemory(self):
-        return self.size - sum(self.mainMemory)
+        return self.mainSize - sum(self.mainMemory)

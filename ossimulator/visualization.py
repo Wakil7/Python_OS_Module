@@ -1,17 +1,18 @@
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import copy
+
 class Visualize:
 
     def ganttchart(self, data):
-        chartLst = copy.deepcopy(data.chartdata)
+        chartLst = copy.deepcopy(data.visualdata)
         n = len(chartLst)
 
         plt.figure(figsize=(12, 4))
         plt.axis("off")
         plt.xlim(0, n+1)
         plt.ylim(0, 20)
-        plt.title(data.name + " Scheduling Gantt Chart", fontweight="bold")
+        plt.title(data.name + " Scheduling Gantt Chart", fontsize=20)
         plt.text(0, 11, "0", color="black", fontweight="bold", ha="center", va="center")
 
         for i, tup in enumerate(chartLst):
@@ -30,22 +31,23 @@ class Visualize:
         plt.show()
 
     def replacementtable(self, data):
-        chartLst = copy.deepcopy(data.chartdata)
-        chartData = []
+        chartLst = copy.deepcopy(data.visualdata)
+        visualdata = []
         
         for i in range(len(chartLst[0][0])):
             tmpLst = []
             for j in range(len(chartLst)):
                 tmpLst.append(chartLst[j][0][i])
-            chartData.append(tmpLst)
+            visualdata.append(tmpLst)
         
         rows = [f"Frame {i}" for i in range(len(chartLst[0][0]))]
         columns = ["Pages"]+[chartLst[i][1] for i in range(len(chartLst))]
 
+        plt.figure(figsize=(12, 6))
         plt.axis("tight")
         plt.axis("off")
         
-        tableData = [columns] + [[rows[i]] + chartData[i] for i in range(len(rows))]
+        tableData = [columns] + [[rows[i]] + visualdata[i] for i in range(len(rows))]
         tableObj = plt.table(cellText = tableData, loc="center", cellLoc="center")
         tableObj.auto_set_font_size(False)
         tableObj.set_fontsize(20)
@@ -76,7 +78,7 @@ class Visualize:
 
         plt.legend(loc='upper right', fontsize=15, bbox_to_anchor=(1, 1), borderaxespad=0)
 
-        plt.title(data.name, fontsize=25)
+        plt.title(data.name, fontsize=20)
         plt.show()
 
     def memorystatus(self, data):
@@ -88,7 +90,7 @@ class Visualize:
         plt.axis("off")
         plt.xlim(0, n+1)
         plt.ylim(0, 20)
-        plt.title(data.name + " Memory Status")
+        plt.title(data.name + " Memory Status", fontsize=20)
 
         for i, block in enumerate(memoryData):
             if type(block)==tuple:
@@ -106,9 +108,9 @@ class Visualize:
         plt.show()
     
     def headmovement(self, data):
-        movementData = copy.deepcopy(data.servedorder)
+        movementData = copy.deepcopy(data.visualdata)
         size = len(movementData)
-        plt.title(data.name + " Head Movement")
+        plt.title(data.name + " Head Movement", fontsize=20)
         plt.xlim(0, data.disksize)
         plt.ylim(0, size+1)
         plt.gca().axes.yaxis.set_visible(False)
@@ -127,8 +129,3 @@ class Visualize:
         
         anim = FuncAnimation(plt.gcf(), addData, frames=size, interval=500, repeat=False)
         plt.show()
-
-
-
-
-    
