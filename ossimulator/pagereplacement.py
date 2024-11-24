@@ -27,7 +27,7 @@ class PageReplacer:
                     framesLst[-1] = [copy.deepcopy(memoryObj.frames), framesLst[-1][1], tmpDict]
                     memoryObj.frames[x] = req
                     framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
-        output = Output("Random Page Replacement", framesLst, hit)
+        output = Output("Random", framesLst, hit)
         return output
     
     def fifo(self, requests, memoryObj):
@@ -55,7 +55,7 @@ class PageReplacer:
                     memoryObj.frames[index] = req
                     framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     index = (index + 1) % memoryObj.frameSize
-        output = Output("FIFO Page Replacement", framesLst, hit)
+        output = Output("FIFO", framesLst, hit)
         return output
     
     def lru(self, requests, memoryObj):
@@ -94,7 +94,7 @@ class PageReplacer:
                     memoryObj.frames[x] = req
                     framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     usedDict[req] = 1
-        output = Output("LRU Page Replacement", framesLst, hit)
+        output = Output("LRU", framesLst, hit)
         return output
     
     def mru(self, requests, memoryObj):
@@ -133,7 +133,7 @@ class PageReplacer:
                     memoryObj.frames[x] = req
                     framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     usedDict[req] = 1
-        output = Output("MRU Page Replacement", framesLst, hit)
+        output = Output("MRU", framesLst, hit)
         return output
     
     def lfu(self, requests, memoryObj):
@@ -174,7 +174,7 @@ class PageReplacer:
                     else:
                         hitDict[req]=0
                         
-        output = Output("LFU Page Replacement", framesLst, hit)
+        output = Output("LFU", framesLst, hit)
         return output
     
     def mfu(self, requests, memoryObj):
@@ -215,7 +215,7 @@ class PageReplacer:
                     else:
                         hitDict[req]=0
                         
-        output = Output("MFU Page Replacement", framesLst, hit)
+        output = Output("MFU", framesLst, hit)
         return output
     
     def clock(self, requests, memoryObj):
@@ -253,7 +253,7 @@ class PageReplacer:
                     framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                     index = (index + 1) % memoryObj.frameSize
                     useBitDict[req]=1
-        output = Output("Clock Page Replacement", framesLst, hit)
+        output = Output("Clock", framesLst, hit)
         return output
     
     def optimal(self, requests, memoryObj):
@@ -294,5 +294,11 @@ class PageReplacer:
                                 memoryObj.frames[x] = req
                                 framesLst.append([copy.deepcopy(memoryObj.frames), req, {}])
                                 break
-        output = Output("Optimal Page Replacement", framesLst, hit)
+        output = Output("Optimal", framesLst, hit)
         return output
+    
+    def compare(self, *args):
+        lst = [[x.name, x.hits] for x in args]
+        lst.sort(key=lambda x: x[1], reverse=True)
+        outLst = [x[0] for x in lst if x[1]==lst[0][1]]
+        return outLst

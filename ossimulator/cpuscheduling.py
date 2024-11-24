@@ -312,3 +312,9 @@ class CpuScheduler:
         avgwt = self.avg(resultDict, "WT")
         output = Output("Preemptive Priority", chartLst, resultDict, avgtt, avgwt)   
         return output
+    
+    def compare(self, *args):
+        lst = [[x.name, x.avgtt] for x in args]
+        lst.sort(key=lambda x: x[1])
+        outLst = [x[0] for x in lst if x[1]==lst[0][1]]
+        return outLst

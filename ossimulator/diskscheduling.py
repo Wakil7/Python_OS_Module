@@ -1,4 +1,5 @@
 from collections import namedtuple
+import copy
 
 class DiskScheduler:
     
@@ -43,7 +44,7 @@ class DiskScheduler:
 
 
     def fcfs(self, diskObj):
-        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "servedorder", "visualdata", "disksize", "movement"])
         head = diskObj.head
         reqLst = [head]
         movement = 0
@@ -53,15 +54,15 @@ class DiskScheduler:
             movement += abs(head-r)
             head = r
         reqLst.extend(diskObj.requests)
-        output = Output("FCFS", reqLst, diskObj.size, movement)
+        output = Output("FCFS", copy.deepcopy(diskObj.requests), reqLst, diskObj.size, movement)
         return output
 
     def sstf(self, diskObj):
-        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
-        
+        Output = namedtuple("Output", ["name", "servedorder", "visualdata", "disksize", "movement"])
+        outList = []
         reqLst = sorted(diskObj.requests)
         head = diskObj.head
-        outList = [head]
+        visualList = [head]
         movement = 0
 
         while len(reqLst)!=0:
@@ -70,30 +71,33 @@ class DiskScheduler:
             if (r>=diskObj.size or r<0):
                 return False
             movement += mov
+            visualList.append(r)
             outList.append(r)
             reqLst.pop(index)
         
-        output = Output("SSTF", outList, diskObj.size, movement)
+        output = Output("SSTF", outList, visualList, diskObj.size, movement)
         return output
 
 
     def scan(self, diskObj, direction="left"):
-        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "servedorder", "visualdata", "disksize", "movement"])
         head = diskObj.head
+        outList = []
         reqLst = sorted(diskObj.requests)
         n = len(reqLst)
-        outList = [head]
+        visualList = [head]
         
         head, movement, index = self.seek(diskObj, head, d=direction)
         oldind = index
 
         def fetch():
-            nonlocal movement, head, outList, index
+            nonlocal movement, head, visualList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
+            visualList.append(r)
             outList.append(r)
 
         if direction.lower()=="right":
@@ -104,7 +108,7 @@ class DiskScheduler:
             r = diskObj.size-1
             movement += abs(head-r)
             head = r
-            outList.append(r)
+            visualList.append(r)
             index = oldind-1
             while index>=0:
                 fetch()
@@ -115,32 +119,34 @@ class DiskScheduler:
                 index -= 1
             movement += head
             head = 0
-            outList.append(0)
+            visualList.append(0)
             index = oldind + 1
             while index<n:
                 fetch()
                 index += 1
         
-        output = Output("SCAN", outList, diskObj.size, movement)
+        output = Output("SCAN", outList, visualList, diskObj.size, movement)
         return output
 
     def cscan(self, diskObj, direction="left"):
-        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "servedorder", "visualdata", "disksize", "movement"])
         head = diskObj.head
+        outList = []
         reqLst = sorted(diskObj.requests)
         n = len(reqLst)
-        outList = [head]
+        visualList = [head]
 
         head, movement, index = self.seek(diskObj, head, d=direction)
         oldind = index
 
         def fetch():
-            nonlocal movement, head, outList, index
+            nonlocal movement, head, visualList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
+            visualList.append(r)
             outList.append(r)
 
         if direction.lower()=="right":
@@ -149,9 +155,9 @@ class DiskScheduler:
                 index += 1
             r = diskObj.size-1
             movement += abs(head-r)
-            outList.append(r)
+            visualList.append(r)
             movement += diskObj.head-1
-            outList.append(0)
+            visualList.append(0)
             head = 0
             head, mov, index = self.seek(diskObj, head, d=direction)
             movement += mov
@@ -163,36 +169,38 @@ class DiskScheduler:
                 fetch()
                 index -= 1
             movement += head
-            outList.append(0)
+            visualList.append(0)
             head = diskObj.size-1
             movement += head
-            outList.append(diskObj.size-1)
+            visualList.append(diskObj.size-1)
             head, mov, index = self.seek(diskObj, head, d=direction)
             movement += mov
             while index>oldind:
                 fetch()
                 index -= 1
         
-        output = Output("C-SCAN", outList, diskObj.size, movement)
+        output = Output("C-SCAN", outList, visualList, diskObj.size, movement)
         return output
 
     def look(self, diskObj, direction="left"):
-        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "servedorder", "visualdata", "disksize", "movement"])
         head = diskObj.head
+        outList = []
         reqLst = sorted(diskObj.requests)
         n = len(reqLst)
-        outList = [head]
+        visualList = [head]
 
         head, movement, index = self.seek(diskObj, head, d=direction)
         oldind = index
 
         def fetch():
-            nonlocal movement, head, outList, index
+            nonlocal movement, head, visualList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
+            visualList.append(r)
             outList.append(r)
 
         if direction.lower()=="right":
@@ -212,27 +220,29 @@ class DiskScheduler:
                 fetch()
                 index += 1
         
-        output = Output("LOOK", outList, diskObj.size, movement)
+        output = Output("LOOK", outList, visualList, diskObj.size, movement)
         return output
 
 
     def clook(self, diskObj, direction="left"):
-        Output = namedtuple("Output", ["name", "visualdata", "disksize", "movement"])
+        Output = namedtuple("Output", ["name", "servedorder", "visualdata", "disksize", "movement"])
         head = diskObj.head
+        outList = []
         reqLst = sorted(diskObj.requests)
         n = len(reqLst)
-        outList = [head]
+        visualList = [head]
 
         head, movement, index = self.seek(diskObj, head, d=direction)
         oldind = index
 
         def fetch():
-            nonlocal movement, head, outList, index
+            nonlocal movement, head, visualList, index
             r = reqLst[index]
             if (r>=diskObj.size or r<0):
                 return False
             movement += abs(head-r)
             head = r
+            visualList.append(r)
             outList.append(r)
 
         if direction.lower()=="right":
@@ -252,5 +262,12 @@ class DiskScheduler:
                 fetch()
                 index -= 1
         
-        output = Output("C-LOOK", outList, diskObj.size, movement)
+        output = Output("C-LOOK", outList, visualList, diskObj.size, movement)
         return output
+    
+    def compare(self, *args):
+        lst = [[x.name, x.movement] for x in args]
+        lst.sort(key=lambda x: x[1])
+        outLst = [x[0] for x in lst if x[1]==lst[0][1]]
+        return outLst
+        

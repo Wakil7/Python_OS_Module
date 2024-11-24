@@ -4,7 +4,7 @@ import copy
 
 class Visualize:
 
-    def ganttchart(self, data):
+    def showGanttChart(self, data):
         chartLst = copy.deepcopy(data.visualdata)
         n = len(chartLst)
 
@@ -26,11 +26,11 @@ class Visualize:
             plt.text(i+0.5, 15, str(pid), color="black", fontweight="bold", ha="center", va="center")
             plt.text(i+1, 11, str(ct), color="black", fontweight="bold", ha="center", va="center")
         
-        plt.text(n/2, 5, f"Average Turnaround Time: {data.avgtt} ms", color="black", ha="left", va="center", fontsize=12)
-        plt.text(n/2, 3, f"Average Waiting Time:  {data.avgwt} ms", color="black", ha="left", va="center", fontsize=12)
+        plt.text(n/2, 5, f"Average Turnaround Time: {data.avgtt} ms", color="black", ha="left", va="center", fontsize=14)
+        plt.text(n/2, 3, f"Average Waiting Time:  {data.avgwt} ms", color="black", ha="left", va="center", fontsize=14)
         plt.show()
 
-    def replacementtable(self, data):
+    def showTable(self, data):
         chartLst = copy.deepcopy(data.visualdata)
         visualdata = []
         
@@ -78,10 +78,10 @@ class Visualize:
 
         plt.legend(loc='upper right', fontsize=15, bbox_to_anchor=(1, 1), borderaxespad=0)
 
-        plt.title(data.name, fontsize=20)
+        plt.title(data.name + " Page Replacement", fontsize=20)
         plt.show()
 
-    def memorystatus(self, data):
+    def showMemory(self, data):
         memoryData = data.visualdata
 
         n = len(memoryData)
@@ -107,7 +107,7 @@ class Visualize:
             plt.text(i+0.5, 14, size, color="black", fontweight="bold", ha="center", va="center")
         plt.show()
     
-    def headmovement(self, data):
+    def showHeadMovement(self, data):
         movementData = copy.deepcopy(data.visualdata)
         size = len(movementData)
         plt.title(data.name + " Head Movement", fontsize=20)

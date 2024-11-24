@@ -5,9 +5,9 @@ class MemoryAllocator:
     def __init__(self):
         self.pointer = 0
 
-    def firstFit(self, processDict, memoryObj):
+    def firstFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
-        processes = copy.deepcopy(processDict)
+        processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         for pid in processes.keys():
@@ -30,9 +30,9 @@ class MemoryAllocator:
         output = Output("First Fit", newMemory, allotedDict)
         return output
     
-    def bestFit(self, processDict, memoryObj):
+    def bestFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
-        processes = copy.deepcopy(processDict)
+        processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         for pid in processes.keys():
@@ -60,9 +60,9 @@ class MemoryAllocator:
         output = Output("Best Fit", newMemory, allotedDict)
         return output
     
-    def worstFit(self, processDict, memoryObj):
+    def worstFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
-        processes = copy.deepcopy(processDict)
+        processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         for pid in processes.keys():
@@ -90,9 +90,9 @@ class MemoryAllocator:
         output = Output("Worst Fit", newMemory, allotedDict)
         return output
     
-    def nextFit(self, processDict, memoryObj):
+    def nextFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
-        processes = copy.deepcopy(processDict)
+        processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
         allotedDict = {}
         n = len(newMemory)
@@ -128,4 +128,3 @@ class MemoryAllocator:
         memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
         output = Output("Next Fit", newMemory, allotedDict)
         return output
-    
