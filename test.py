@@ -16,9 +16,9 @@ cs = c.CpuScheduler()
 
 processLst = [
     ["P0", 1, 3, 1, 212],
-    ["P1", 10, 5, 5, 98],
-    ["P2", 17, 2, 4, 417],
-    ["P3", 3, 1, 3, 112],
+    ["P1", 3, 5, 5, 98],
+    ["P2", 5, 2, 4, 417],
+    ["P3", 0, 1, 3, 112],
     ["P4", 2, 4, 2, 426]
 ]
 
@@ -62,7 +62,7 @@ print("Average Turnaround Time: ", prout.avgtt)
 print("Average Waiting Time: ", prout.avgwt)
 print()
 
-print(cs.compare(fcfsout, prout, nprout, rrout, srtfout, sjfout))
+print("Recommended: ", cs.compare(fcfsout, prout, nprout, rrout, srtfout, sjfout))
 
 visual.showGanttChart(fcfsout)
 visual.showGanttChart(sjfout)
@@ -110,7 +110,7 @@ print("C-LOOK:", clookout.servedorder)
 print("Total head movement:", clookout.movement)
 print()
 
-print(ds.compare(fcfsdout, sstfout, scanout, cscanout, lookout, clookout))
+print("Recommended: ", ds.compare(fcfsdout, sstfout, scanout, cscanout, lookout, clookout))
 
 visual.showHeadMovement(fcfsdout)
 visual.showHeadMovement(sstfout)
@@ -154,7 +154,7 @@ memory.clearFrames()
 optout = pr.optimal(requestLst, memory)
 print("Optimal Hit =", optout.hits)
 
-print(pr.compare(randout, fifoout, mfuout, clockout))
+print("Recommended: ", pr.compare(randout, fifoout, mfuout, clockout))
 
 visual.showTable(randout)
 visual.showTable(fifoout)
@@ -171,6 +171,7 @@ memoryStatus = [100, 320, 500, 200, 300, 600]
 allocator = ma.MemoryAllocator()
 
 memory.setMainMemory(memoryStatus, 10000)
+
 ffout = allocator.firstFit(processes, memory)
 print("Process Status:", ffout.result)
 print("Available Memory:", memory.getMainMemoryStatus())
@@ -200,6 +201,8 @@ print("Process Status:", nfout.result)
 print("Available Memory:", memory.getMainMemoryStatus())
 print("Total Available Memory:", memory.totalFreeMemory())
 print()
+
+print("Recommended: ", allocator.compare(ffout, bfout, wfout, nfout))
 
 visual.showMemory(ffout)
 visual.showMemory(bfout)

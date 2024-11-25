@@ -9,7 +9,7 @@ class MemoryAllocator:
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
-        allotedDict = {}
+        allottedDict = {}
         for pid in processes.keys():
             flag = True
             tmpMemory = copy.deepcopy(newMemory)
@@ -21,20 +21,20 @@ class MemoryAllocator:
                         if block!=processes[pid]:
                             newMemory.insert(i+1, block-processes[pid])
                         flag = False
-                        allotedDict[pid] = 1
+                        allottedDict[pid] = 1
                         break
             if flag:
-                allotedDict[pid] = 0
+                allottedDict[pid] = 0
         memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
     
-        output = Output("First Fit", newMemory, allotedDict)
+        output = Output("First Fit", newMemory, allottedDict)
         return output
     
     def bestFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
-        allotedDict = {}
+        allottedDict = {}
         for pid in processes.keys():
             m = None
             tmpMemory = copy.deepcopy(newMemory)
@@ -47,24 +47,24 @@ class MemoryAllocator:
                         m = block - processes[pid] 
                         index = i
             if m==None:
-                allotedDict[pid] = 0
+                allottedDict[pid] = 0
             else:
                 tmp = newMemory[index]
                 newMemory[index] = (pid, processes[pid])
                 self.pointer = index + 1
                 if tmp!=processes[pid]:
                     newMemory.insert(index+1, tmp-processes[pid])
-                allotedDict[pid] = 1
+                allottedDict[pid] = 1
         memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
     
-        output = Output("Best Fit", newMemory, allotedDict)
+        output = Output("Best Fit", newMemory, allottedDict)
         return output
     
     def worstFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
-        allotedDict = {}
+        allottedDict = {}
         for pid in processes.keys():
             m = None
             tmpMemory = copy.deepcopy(newMemory)
@@ -77,24 +77,24 @@ class MemoryAllocator:
                         m = block - processes[pid] 
                         index = i
             if m==None:
-                allotedDict[pid] = 0
+                allottedDict[pid] = 0
             else:
                 tmp = newMemory[index]
                 newMemory[index] = (pid, processes[pid])
                 self.pointer = index + 1
                 if tmp!=processes[pid]:
                     newMemory.insert(index+1, tmp-processes[pid])
-                allotedDict[pid] = 1
+                allottedDict[pid] = 1
         memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
     
-        output = Output("Worst Fit", newMemory, allotedDict)
+        output = Output("Worst Fit", newMemory, allottedDict)
         return output
     
     def nextFit(self, processObj, memoryObj):
         Output = namedtuple("Output", ["name", "visualdata", "result"])
         processes = {x[0]: x[1][3] for x in processObj.processDict.items()}
         newMemory = copy.deepcopy(memoryObj.mainMemory)
-        allotedDict = {}
+        allottedDict = {}
         n = len(newMemory)
         for pid in processes.keys():
             prevIndex = (self.pointer + n - 1) % n
@@ -108,7 +108,7 @@ class MemoryAllocator:
                     if tmp!=processes[pid]:
                         newMemory.insert(self.pointer, tmp-processes[pid])
                         n += 1
-                    allotedDict[pid] = 1
+                    allottedDict[pid] = 1
                     flag = False
                     break
                 else:
@@ -120,11 +120,17 @@ class MemoryAllocator:
                 if tmp!=processes[pid]:
                     newMemory.insert(self.pointer, tmp-processes[pid])
                     n += 1
-                allotedDict[pid] = 1
+                allottedDict[pid] = 1
                 flag = False
             if flag:
-                allotedDict[pid] = 0
+                allottedDict[pid] = 0
 
         memoryObj.mainMemory = [x for x in newMemory if type(x)!=tuple]
-        output = Output("Next Fit", newMemory, allotedDict)
+        output = Output("Next Fit", newMemory, allottedDict)
         return output
+    
+    def compare(self, *args):
+        lst = [[x.name, x.result] for x in args]
+        lst.sort(key=lambda x: sum(x[1].values()), reverse=True)
+        outLst = [x[0] for x in lst if sum(x[1].values())==sum(lst[0][1].values())]
+        return outLst

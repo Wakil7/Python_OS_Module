@@ -78,6 +78,11 @@ class Visualize:
 
         plt.legend(loc='upper right', fontsize=15, bbox_to_anchor=(1, 1), borderaxespad=0)
 
+        plt.text(0, -0.04, f"Number of page hits = {data.hits}", fontsize=13, ha="left", va="center")
+        plt.text(0, -0.05, f"Number of page faults = {len(data.visualdata)-data.hits}", fontsize=13, ha="left", va="center")
+
+        plt.text(0, -0.06, f"Hit ratio = {round(data.hits/len(data.visualdata)*100, 2)} %", fontsize=13, ha="left", va="center")
+
         plt.title(data.name + " Page Replacement", fontsize=20)
         plt.show()
 
@@ -92,6 +97,7 @@ class Visualize:
         plt.ylim(0, 20)
         plt.title(data.name + " Memory Status", fontsize=20)
 
+        free=0
         for i, block in enumerate(memoryData):
             if type(block)==tuple:
                 bgcolor="#03ff24"
@@ -101,10 +107,14 @@ class Visualize:
                 bgcolor="skyblue"
                 size = block
                 txt = "Free"
+                free += size
             plt.barh(15, 1, left=i, height=5, color=bgcolor, edgecolor="black")
             plt.text(i+0.5, 16, txt, color="black", fontweight="bold", ha="center", va="center")
             
             plt.text(i+0.5, 14, size, color="black", fontweight="bold", ha="center", va="center")
+        
+        
+        plt.text(len(data.visualdata)/2, 5, f"Total free memory = {free}", fontsize=13, ha="center", va="center")
         plt.show()
     
     def showHeadMovement(self, data):
@@ -127,5 +137,9 @@ class Visualize:
                 line.set_data(x, y)
             return head, line
         
+        plt.xlabel(f"Total head movement = {data.movement}", fontsize=13)
+
         anim = FuncAnimation(plt.gcf(), addData, frames=size, interval=500, repeat=False)
+
+        
         plt.show()
